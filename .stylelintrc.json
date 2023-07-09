@@ -1,0 +1,37 @@
+{
+  "ignoreFiles": ["**/*"],
+  "overrides": [
+    {
+      "files": ["**/*.scss"],
+      "extends": ["stylelint-config-standard-scss"],
+      "rules": {
+        "scss/at-import-no-partial-leading-underscore": null,
+        "scss/at-rule-no-unknown": true,
+        "scss/dollar-variable-pattern": "(foo-.+)|([a-z][a-zA-Z]+)",
+        "scss/dollar-variable-colon-newline-after": "always-multi-line",
+        "scss/dollar-variable-default": [
+          true,
+          {
+            "ignore": "local"
+          }
+        ],
+        "scss/selector-no-union-class-name": true,
+        "block-no-empty": true,
+        "color-no-invalid-hex": true,
+        "max-nesting-depth": 4,
+        "max-empty-lines": 2,
+        "selector-max-compound-selectors": 5,
+        "selector-max-id": 1,
+        "selector-no-qualifying-type": [
+          true,
+          {"ignore": ["attribute", "class"]}
+        ],
+        "selector-type-no-unknown": null,
+        "selector-pseudo-element-no-unknown": [true, {
+          "ignorePseudoElements": ["ng-deep"]
+        }],
+        "unit-allowed-list": ["rem", "px", "fr", "%", "vh", "vw", "s", "deg"]
+      }
+    }
+  ]
+}
