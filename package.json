@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "javascript-color-gradient": "^2.4.4",
     "konva": "^9.2.0",
     "node-sass": "^7.0.3",
     "react": "^18.2.0",
@@ -17,6 +18,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/javascript-color-gradient": "^2.4.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.38",
     "@types/react": "^18.2.14",
@@ -33,7 +35,8 @@
     "eslint-plugin-prettier": "^5.0.0-alpha.2",
     "stylelint": "^15.10.1",
     "stylelint-config-idiomatic-order": "^9.0.0",
-    "stylelint-config-standard-scss": "^10.0.0"
+    "stylelint-config-standard-scss": "^10.0.0",
+    "use-image": "^1.1.1"
   },
   "scripts": {
     "start": "react-scripts start",

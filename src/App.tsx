@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
+import useImage from 'use-image';
+import useInterval from 'useInterval';
 import { GameSquare } from 'types';
+import image from 'images/stop.png';
 import Square from './Square';
 import logo from './images/mime_bw.png';
 import 'App.scss';
@@ -35,7 +38,7 @@ const initialNumMimes: number = 100;
 const bonusTimeScore: number = 500;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const bonusTimeDelay: number = 1000; // 1 second
+const timeDelay: number = 1000; // 1 second
 
 function coordKey(x: number, y: number): string {
   return `${x}|${y}`;
@@ -81,8 +84,8 @@ function updateAdjacent(
             upcomingGame.set(coords, piece);
           }
         } else if (type === AdjacentUpdate.open) {
-          // Logic to open Adjacent Squares
-          if (piece) {
+          // Logic to open Adjacent Squares (won't open flagged squares)
+          if (piece && !piece.flagged) {
             piece.opened = true;
           }
         }
@@ -96,8 +99,12 @@ function App() {
   const [numMimes, setNumMimes] = useState(initialNumMimes);
   const [boardSize, setBoardSize] = useState(initialGridSize);
   const [game, setGame] = useState<Map<string, GameSquare> | null>(null);
-  const [started, setStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
+  const [isStarted, setStarted] = useState(false);
+  const [isGameOver, setGameOver] = useState(false);
+  const [flag] = useImage(image);
+  const [playTime, setPlayTime] = useState(0);
+  // numFlags -> equivalent to the number of mimes
+  // numFlagged -> hold on to this, then you can calculate the number of flags remaining
 
   function populateMimes(
     entries: Array<[string, GameSquare]>,
@@ -143,9 +150,9 @@ function App() {
     return upcomingGame;
   }
 
-  const handleSquareSelect = (coord: string) => {
+  const handleSquareSelect = (coord: string, e: MouseEvent | PointerEvent) => {
     let nextStateGame: Map<string, GameSquare> | null = game;
-    if (!started && game) {
+    if (!isStarted && game) {
       // Game just began! need to populate the game board first
       nextStateGame = populateMimes(Array.from(game.entries()), coord);
       // game is now in started state
@@ -153,17 +160,23 @@ function App() {
     }
     const square = game?.get(coord);
     if (nextStateGame && square) {
-      if (square.mime) {
-        console.warn('MIME! GAME OVER!');
+      if (e.type === 'contextmenu') {
+        // this is a right click
+        square.flagged = !square.flagged;
+      } else if (square.mime && !square.flagged) {
+        // not right-click, not a flag, and hit a mime. Game over
         square.opened = true;
         setGameOver(true);
-      } else {
-        // not a mime
+      } else if (!square.flagged) {
+        // not right-click, not a flag, and not a mime
         square.opened = true;
         if (square.adjacentMimes === 0) {
           // If there are no adjacentMimes, open all adjacent Squares
           updateAdjacent(coord, nextStateGame, AdjacentUpdate.open);
         }
+        // TODO game is over if numMimes === numFlagged === num unopened squares. Better yet, bump mimeLocations up
+        //  to the parent context and also hold onto flagLocations, sorted. then you can compare the two during the times
+        //  when numMimes === numFlagged. this significantly reduces computation
       }
       nextStateGame.set(coord, square);
       setGame(() => new Map(nextStateGame));
@@ -185,6 +198,8 @@ function App() {
           mime: false,
           adjacentMimes: 0,
           opened: false,
+          flagged: false,
+          flag: flag as HTMLImageElement,
           x: xIndex * squareSide,
           y: yIndex * squareSide,
         },
@@ -192,6 +207,10 @@ function App() {
       return prevValue.concat(currentList);
     }, []);
     return new Map<string, GameSquare>(entries);
+  }, [flag]);
+
+  const handleContextMenu = useCallback((event: MouseEvent) => {
+    event.preventDefault();
   }, []);
 
   function restart(mimes: number, size: GridSize = GridSize.XL): void {
@@ -199,19 +218,29 @@ function App() {
     setBoardSize(() => size);
     setNumMimes(() => mimes);
     setStarted(() => false);
+    setPlayTime(0);
     setGame(() => newGame());
   }
 
+  useInterval(
+    () => {
+      setPlayTime(playTime + 1);
+    },
+    isStarted && !isGameOver ? timeDelay : null
+  );
+
   useEffect(() => {
     setGame(() => newGame());
+    document.addEventListener('contextmenu', handleContextMenu);
     return function cleanup() {
+      document.removeEventListener('contextmenu', handleContextMenu);
       setGame(() => null);
     };
-  }, [newGame]);
+  }, [handleContextMenu, newGame]);
 
   return (
     <div className="container">
-      {gameOver ? (
+      {isGameOver ? (
         <div className="overlay">
           <div className="content">
             <h4>GAME OVER</h4>
@@ -229,7 +258,9 @@ function App() {
       ) : (
         ''
       )}
-      <h4>Mimesweeper</h4>
+      <h4>
+        Mimesweeper <small>Play time: {playTime}s</small>
+      </h4>
       <div className="mimes">
         <img alt="logo" src={logo} style={{ width: '4rem' }} />
         <img alt="logo" src={logo} style={{ width: '4rem' }} />
@@ -264,7 +295,10 @@ function App() {
               mime={square.mime}
               adjacentMimes={square.adjacentMimes}
               opened={square.opened}
+              flagged={square.flagged}
+              flag={square.flag}
               onSelect={handleSquareSelect}
+              onRightClick={handleSquareSelect}
             />
           ))}
         </Layer>
