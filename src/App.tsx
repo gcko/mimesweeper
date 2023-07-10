@@ -10,39 +10,41 @@ enum AdjacentUpdate {
   open = 'OPEN',
 }
 
+enum GridSize {
+  XS = 5,
+  S = 10,
+  M = 20,
+  L = 30,
+  XL = 40,
+}
+
 // width/height of each square in px
 const squareSide = 25;
+
 // play area number of squares
-const gridSize = 40;
-const gridX: number = squareSide * gridSize; // 24 * 40 = 1000
-const gridY: number = squareSide * gridSize; // 24 * 40 = 1000
+const initialGridSize = GridSize.XL;
+
 // Initial number of mimes. On initialization of the game,
 //  the squares with the mimes need to be initialized
 const initialNumMimes: number = 100;
+
 // Additional score added based on speed of completion
 //  bonus will count down by 10 every 5 seconds after initial 10 seconds
 // 500 / 10 * 5 = 250 seconds + 10 initial seconds = 260 seconds until bonus reaches 0
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const bonusTimeScore: number = 500;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const bonusTimeDelay: number = 1000; // 1 second
-
-// Example Grid
-// [
-//  [0,0],[0,1],[0,2],...,[0,39]
-//  [1,0],[1,1],[1,2],...,[1,39]
-//  ...
-//  [39,0],[39,1],[39,2],...,[39,39]
-// ]
 
 function coordKey(x: number, y: number): string {
   return `${x}|${y}`;
 }
 
-function generateCoord(): string {
+function generateCoord(boardSize: number): string {
   // generate a random location
-  const x = Math.round(Math.random() * gridSize);
-  const y = Math.round(Math.random() * gridSize);
+  const x = Math.round(Math.random() * boardSize);
+  const y = Math.round(Math.random() * boardSize);
   return coordKey(x, y);
 }
 
@@ -64,7 +66,10 @@ function updateAdjacent(
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
       if (
         (xVal !== x && yVal !== y) ||
-        (xVal >= 0 && yVal > 0 && xVal < gridSize && yVal < gridSize)
+        (xVal >= 0 &&
+          yVal > 0 &&
+          xVal < initialGridSize &&
+          yVal < initialGridSize)
       ) {
         // it is not the center game piece and xVal and yVal are in bounds
         const coords = coordKey(xVal, yVal);
@@ -89,61 +94,30 @@ function updateAdjacent(
 function App() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [numMimes, setNumMimes] = useState(initialNumMimes);
+  const [boardSize, setBoardSize] = useState(initialGridSize);
   const [game, setGame] = useState<Map<string, GameSquare> | null>(null);
+  const [started, setStarted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
 
-  const handleSquareSelect = (coord: string) => {
-    console.log('location:', coord);
-    const square = game?.get(coord);
-    if (game && square) {
-      if (square.mime) {
-        console.warn('MIME! GAME OVER!');
-        square.opened = true;
-        // set color to mimeColor
-      } else {
-        // not a mime
-        console.log('adjacent:', square.adjacentMimes);
-        square.opened = true;
-        if (square.adjacentMimes === 0) {
-          // If there are no adjacentMimes, open all adjacent Squares
-          updateAdjacent(coord, game, AdjacentUpdate.open);
-        }
-      }
-      game.set(coord, square);
-      setGame(() => new Map(game));
-    }
-  };
-
-  const newGame = useCallback((): Map<string, GameSquare> => {
-    // use numMimes and the Grid Size to generate a new Game Map
+  function populateMimes(
+    entries: Array<[string, GameSquare]>,
+    safeHaven = '-1|-1'
+  ) {
     // store mimeLocations to lookup during generation
     const mimeLocations: string[] = [];
-    const entries: Array<[string, GameSquare]> = Array.from({
-      length: gridSize,
-    }).reduce((prevValue: Array<[string, GameSquare]>, _, xIndex) => {
-      // generate 0 to gridSize - 1 for the current index and concat to prevValue
-      const currentList: Array<[string, GameSquare]> = Array.from({
-        length: gridSize,
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-      }).map((_, yIndex) => [
-        coordKey(xIndex, yIndex),
-        {
-          mime: false,
-          adjacentMimes: 0,
-          opened: false,
-          x: xIndex * squareSide,
-          y: yIndex * squareSide,
-        },
-      ]);
-      return prevValue.concat(currentList);
-    }, []);
-    // randomly populate with mimes
+    // randomly populate with mimes - This should happen after the first click on a game square
     Array.from({ length: numMimes }).forEach(() => {
-      let potentialMimeLocation = generateCoord();
+      let potentialMimeLocation = generateCoord(boardSize);
       let failSafe = 100;
       // if the potential location is included in the mime locations,
-      //  generate new coordinates until it is no longer OR the failSafe has been triggered
-      while (mimeLocations.includes(potentialMimeLocation) || failSafe < 1) {
-        potentialMimeLocation = generateCoord();
+      //  generate new coordinates until it is no longer in the existing locations,
+      //  the failSafe has been triggered, or the coordinates is not the same as the safeHaven
+      while (
+        mimeLocations.includes(potentialMimeLocation) ||
+        failSafe < 1 ||
+        potentialMimeLocation === safeHaven
+      ) {
+        potentialMimeLocation = generateCoord(boardSize);
         failSafe -= 1;
       }
       mimeLocations.push(potentialMimeLocation);
@@ -167,7 +141,66 @@ function App() {
         }
       });
     return upcomingGame;
-  }, [numMimes]);
+  }
+
+  const handleSquareSelect = (coord: string) => {
+    let nextStateGame: Map<string, GameSquare> | null = game;
+    if (!started && game) {
+      // Game just began! need to populate the game board first
+      nextStateGame = populateMimes(Array.from(game.entries()), coord);
+      // game is now in started state
+      setStarted(() => true);
+    }
+    const square = game?.get(coord);
+    if (nextStateGame && square) {
+      if (square.mime) {
+        console.warn('MIME! GAME OVER!');
+        square.opened = true;
+        setGameOver(true);
+      } else {
+        // not a mime
+        square.opened = true;
+        if (square.adjacentMimes === 0) {
+          // If there are no adjacentMimes, open all adjacent Squares
+          updateAdjacent(coord, nextStateGame, AdjacentUpdate.open);
+        }
+      }
+      nextStateGame.set(coord, square);
+      setGame(() => new Map(nextStateGame));
+    }
+  };
+
+  const newGame = useCallback((): Map<string, GameSquare> => {
+    // use the Grid Size to generate a new Game Map
+    const entries: Array<[string, GameSquare]> = Array.from({
+      length: initialGridSize,
+    }).reduce((prevValue: Array<[string, GameSquare]>, _, xIndex) => {
+      // generate 0 to gridSize - 1 for the current index and concat to prevValue
+      const currentList: Array<[string, GameSquare]> = Array.from({
+        length: initialGridSize,
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+      }).map((_, yIndex) => [
+        coordKey(xIndex, yIndex),
+        {
+          mime: false,
+          adjacentMimes: 0,
+          opened: false,
+          x: xIndex * squareSide,
+          y: yIndex * squareSide,
+        },
+      ]);
+      return prevValue.concat(currentList);
+    }, []);
+    return new Map<string, GameSquare>(entries);
+  }, []);
+
+  function restart(mimes: number, size: GridSize = GridSize.XL): void {
+    setGameOver(() => false);
+    setBoardSize(() => size);
+    setNumMimes(() => mimes);
+    setStarted(() => false);
+    setGame(() => newGame());
+  }
 
   useEffect(() => {
     setGame(() => newGame());
@@ -178,6 +211,24 @@ function App() {
 
   return (
     <div className="container">
+      {gameOver ? (
+        <div className="overlay">
+          <div className="content">
+            <h4>GAME OVER</h4>
+            <button type="button" onClick={() => restart(20, GridSize.M)}>
+              Start a new medium game
+            </button>
+            <button type="button" onClick={() => restart(50, GridSize.L)}>
+              Start a new large game
+            </button>
+            <button type="button" onClick={() => restart(100, GridSize.XL)}>
+              Start a new xl game
+            </button>
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
       <h4>Mimesweeper</h4>
       <div className="mimes">
         <img alt="logo" src={logo} style={{ width: '4rem' }} />
@@ -196,7 +247,11 @@ function App() {
         <img alt="logo" src={logo} style={{ width: '4rem' }} />
         <img alt="logo" src={logo} style={{ width: '4rem' }} />
       </div>
-      <Stage width={gridX} height={gridY} className="stage">
+      <Stage
+        width={squareSide * boardSize}
+        height={squareSide * boardSize}
+        className="stage"
+      >
         <Layer>
           {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
           {Array.from(game ? game.entries() : []).map(([key, square]) => (
