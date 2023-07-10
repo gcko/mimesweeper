@@ -217,7 +217,7 @@ function App() {
       return prevValue.concat(currentList);
     }, []);
     return new Map<string, GameSquare>(entries);
-  }, [flag]);
+  }, [boardSize, flag]);
 
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
