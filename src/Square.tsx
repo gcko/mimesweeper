@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import { GameSquare } from 'types';
 
@@ -6,25 +6,42 @@ type SquareProps = {
   x: number;
   y: number;
   size: number;
+  coord: string;
+  onSelect: (coord: string) => void;
 };
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Square({ x, y, size, mime, adjacentMimes }: SquareProps & GameSquare) {
-  const [color, setColor] = useState('#FFFFFF');
-  const [text, setText] = useState('');
-
+const unopenedColor = '#FFFFFF';
+const openedColor = '#22960F';
+const mimeColor = '#f10606';
+function Square({
+  coord,
+  x,
+  y,
+  size,
+  onSelect,
+  mime,
+  opened,
+  adjacentMimes,
+}: SquareProps & GameSquare) {
+  const [color, setColor] = useState(unopenedColor);
   const handleClick = () => {
+    // TODO on click, if not a mime, need to bubble up to the parent in order to pass state changes to siblings
+    //  https://dev.to/andydziabo/how-to-pass-data-between-sibling-components-in-react-2cjg
     // if this square hides a mime, game over :(
-    if (mime) {
-      setColor('#A10707');
-      setText('X');
-    } else {
-      setColor('#22960F');
-      setText('1');
-    }
+    onSelect(coord);
   };
 
+  useEffect(() => {
+    let newColor = unopenedColor;
+    if (opened && mime) {
+      newColor = mimeColor;
+    } else if (opened) {
+      newColor = openedColor;
+    }
+    setColor(() => newColor);
+  }, [mime, opened]);
+
   return (
-    <Group onMouseLeave={handleClick}>
+    <Group onClick={handleClick}>
       <Rect
         x={x}
         y={y}
@@ -41,7 +58,7 @@ function Square({ x, y, size, mime, adjacentMimes }: SquareProps & GameSquare) {
         height={size}
         padding={5}
         align="center"
-        text={text}
+        text={opened ? `${adjacentMimes}` : ``}
         fontFamily="Press Start 2P"
       />
     </Group>
