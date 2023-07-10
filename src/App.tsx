@@ -40,42 +40,47 @@ const bonusTimeScore: number = 500;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const timeDelay: number = 1000; // 1 second
 
-function coordKey(x: number, y: number): string {
+function coOrdKey(x: number, y: number): string {
   return `${x}|${y}`;
 }
 
-function generateCoord(boardSize: number): string {
+function generateCoOrd(boardSize: number): string {
   // generate a random location
   const x = Math.round(Math.random() * boardSize);
   const y = Math.round(Math.random() * boardSize);
-  return coordKey(x, y);
+  return coOrdKey(x, y);
 }
 
-function getCoord(location: string, xOrY: 'x' | 'y'): number {
+function getCoOrd(location: string, xOrY: 'x' | 'y'): number {
   if (xOrY === 'x') {
     return parseInt(location.slice(0, location.indexOf('|')), 10);
   }
   return parseInt(location.slice(location.indexOf('|') + 1), 10);
 }
 
-function updateAdjacent(
-  location: string,
-  upcomingGame: Map<string, GameSquare>,
-  type: AdjacentUpdate = AdjacentUpdate.mimes
-) {
-  const x = getCoord(location, 'x');
-  const y = getCoord(location, 'y');
+interface AdjacentProps {
+  location: string;
+  upcomingGame: Map<string, GameSquare>;
+  type?: AdjacentUpdate;
+  boardSize: GridSize;
+}
+
+function updateAdjacent({
+  location,
+  upcomingGame,
+  type = AdjacentUpdate.mimes,
+  boardSize,
+}: AdjacentProps) {
+  const x = getCoOrd(location, 'x');
+  const y = getCoOrd(location, 'y');
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
       if (
         (xVal !== x && yVal !== y) ||
-        (xVal >= 0 &&
-          yVal > 0 &&
-          xVal < initialGridSize &&
-          yVal < initialGridSize)
+        (xVal >= 0 && yVal >= 0 && xVal < boardSize && yVal < boardSize)
       ) {
         // it is not the center game piece and xVal and yVal are in bounds
-        const coords = coordKey(xVal, yVal);
+        const coords = coOrdKey(xVal, yVal);
         const piece = upcomingGame.get(coords);
         if (type === AdjacentUpdate.mimes) {
           // Logic to handle updating number of Adjacent mimes
@@ -114,7 +119,7 @@ function App() {
     const mimeLocations: string[] = [];
     // randomly populate with mimes - This should happen after the first click on a game square
     Array.from({ length: numMimes }).forEach(() => {
-      let potentialMimeLocation = generateCoord(boardSize);
+      let potentialMimeLocation = generateCoOrd(boardSize);
       let failSafe = 100;
       // if the potential location is included in the mime locations,
       //  generate new coordinates until it is no longer in the existing locations,
@@ -124,7 +129,7 @@ function App() {
         failSafe < 1 ||
         potentialMimeLocation === safeHaven
       ) {
-        potentialMimeLocation = generateCoord(boardSize);
+        potentialMimeLocation = generateCoOrd(boardSize);
         failSafe -= 1;
       }
       mimeLocations.push(potentialMimeLocation);
@@ -144,7 +149,7 @@ function App() {
         const square = upcomingGame.get(location);
         if (square) {
           // Update surrounding squares' adjacentMimes
-          updateAdjacent(location, upcomingGame);
+          updateAdjacent({ location, upcomingGame, boardSize });
         }
       });
     return upcomingGame;
@@ -172,7 +177,12 @@ function App() {
         square.opened = true;
         if (square.adjacentMimes === 0) {
           // If there are no adjacentMimes, open all adjacent Squares
-          updateAdjacent(coord, nextStateGame, AdjacentUpdate.open);
+          updateAdjacent({
+            location: coord,
+            upcomingGame: nextStateGame,
+            type: AdjacentUpdate.open,
+            boardSize,
+          });
         }
         // TODO game is over if numMimes === numFlagged === num unopened squares. Better yet, bump mimeLocations up
         //  to the parent context and also hold onto flagLocations, sorted. then you can compare the two during the times
@@ -186,14 +196,14 @@ function App() {
   const newGame = useCallback((): Map<string, GameSquare> => {
     // use the Grid Size to generate a new Game Map
     const entries: Array<[string, GameSquare]> = Array.from({
-      length: initialGridSize,
+      length: boardSize,
     }).reduce((prevValue: Array<[string, GameSquare]>, _, xIndex) => {
       // generate 0 to gridSize - 1 for the current index and concat to prevValue
       const currentList: Array<[string, GameSquare]> = Array.from({
-        length: initialGridSize,
+        length: boardSize,
         // eslint-disable-next-line @typescript-eslint/no-shadow
       }).map((_, yIndex) => [
-        coordKey(xIndex, yIndex),
+        coOrdKey(xIndex, yIndex),
         {
           mime: false,
           adjacentMimes: 0,
