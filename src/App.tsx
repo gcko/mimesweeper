@@ -342,7 +342,10 @@ function App() {
   }, [handleContextMenu, newGame]);
 
   return (
-    <div className="container">
+    <div
+      className="container"
+      style={{ minWidth: `${squareSide * boardSize}px` }}
+    >
       {isGameOver ? (
         <div className="overlay">
           <div className="content">

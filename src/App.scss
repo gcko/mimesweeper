@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  width: 1000px;
+  min-width: 1000px;
   margin: auto;
   text-align: center;
 
@@ -25,8 +25,10 @@ body {
     filter: invert(100%);
   }
 
+  $buttonBgColor: #4b5052;
   button {
-    background-color: #4b5052;
+    background-color: $buttonBgColor;
+    transition: background-color 200ms;
     border: 2px solid #000000;
     color: #F5F5F5FF;
     padding: 1rem 1.5rem;
@@ -35,6 +37,14 @@ body {
     font-size: 1rem;
     display: inline-block;
     font-family: 'Press Start 2P', cursive;
+
+    &:hover, &:focus {
+      background-color: darken($buttonBgColor, 3%);
+    }
+
+    &:active {
+      background-color: darken($buttonBgColor, 10%);
+    }
   }
 
   button + button {
@@ -53,13 +63,13 @@ body {
     width: 100vw;
     height: 100vh;
     position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.18);
 
     .content {
-      top: 20vh;
-      left: 35vw;
-      position: absolute;
       width: 30rem;
       height: fit-content;
       background-color: #FFFFFF;
