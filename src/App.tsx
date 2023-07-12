@@ -42,10 +42,9 @@ const initialNumMimes: number = MimeSize.L;
 // Additional score added based on speed of completion
 //  bonus will count down by 10 every 5 seconds after initial 10 seconds
 // 500 / 10 * 5 = 250 seconds + 10 initial seconds = 260 seconds until bonus reaches 0
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const bonusTimeScore: number = 500;
+// TODO implement
+// const bonusTimeScore: number = 500;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const timeDelay: number = 1000; // 1 second
 
 function coOrdKey(x: number, y: number): string {
@@ -292,8 +291,7 @@ function App() {
       // generate 0 to gridSize - 1 for the current index and concat to prevValue
       const currentList: Array<[string, GameSquare]> = Array.from({
         length: boardSize,
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-      }).map((_, yIndex) => [
+      }).map((__, yIndex) => [
         coOrdKey(xIndex, yIndex),
         {
           mime: false,
@@ -310,7 +308,7 @@ function App() {
       return prevValue.concat(currentList);
     }, []);
     return new Map<string, GameSquare>(entries);
-  }, [boardSize, flag, gameOverMime]);
+  }, [boardSize, flag, gameOverMime, isGameOver]);
 
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
