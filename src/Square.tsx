@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Group, Image, Rect, Text } from 'react-konva';
-import { GameSquare } from 'types';
+import { Coordinate, GameSquare } from 'types';
 import Gradient from 'javascript-color-gradient';
 import Konva from 'konva';
 import KonvaEventObject = Konva.KonvaEventObject;
@@ -9,10 +9,10 @@ type SquareProps = {
   x: number;
   y: number;
   size: number;
-  coOrd: string;
-  onSelect: (coOrd: string, type: string) => void;
-  onRightClick: (coOrd: string, type: string) => void;
-  onDoubleClick: (coOrd: string, type: string) => void;
+  coOrd: Coordinate;
+  onSelect: (coOrd: Coordinate, type: string) => void;
+  onRightClick: (coOrd: Coordinate, type: string) => void;
+  onDoubleClick: (coOrd: Coordinate, type: string) => void;
 };
 
 // Capture all the colors and magic number settings in Square
