@@ -72,6 +72,8 @@ function Square({
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onDblClick={handleDblClick}
+      onTap={handleClick}
+      onDblTap={handleDblClick}
     >
       <Rect
         x={x}
