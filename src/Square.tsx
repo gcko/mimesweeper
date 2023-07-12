@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Group, Image, Rect, Text } from 'react-konva';
-import { Coordinate, GameSquare } from 'types';
+import { Coordinate, EventType, GameSquare } from 'types';
 import Gradient from 'javascript-color-gradient';
-import Konva from 'konva';
-import KonvaEventObject = Konva.KonvaEventObject;
 
 type SquareProps = {
   x: number;
   y: number;
   size: number;
   coOrd: Coordinate;
-  onSelect: (coOrd: Coordinate, type: string) => void;
-  onRightClick: (coOrd: Coordinate, type: string) => void;
-  onDoubleClick: (coOrd: Coordinate, type: string) => void;
+  onSelect: (coOrd: Coordinate, type: EventType) => void;
+  onRightClick: (coOrd: Coordinate, type: EventType) => void;
+  onDoubleClick: (coOrd: Coordinate, type: EventType) => void;
 };
 
 // Capture all the colors and magic number settings in Square
@@ -42,21 +40,21 @@ function Square({
   adjacentMimes,
 }: SquareProps & GameSquare) {
   const [color, setColor] = useState(unopenedColor);
-  const handleClick = (e: KonvaEventObject<MouseEvent>) => {
+  const handleClick = () => {
     // if this square hides a mime, game over :(
     // type = click
-    onSelect(coOrd, e.type);
+    onSelect(coOrd, 'click');
   };
 
-  const handleDblClick = (e: KonvaEventObject<MouseEvent>) => {
+  const handleDblClick = () => {
     // type = dblclick
     // handler for a double click event
-    onDoubleClick(coOrd, e.type);
+    onDoubleClick(coOrd, 'dblclick');
   };
 
-  const handleContextMenu = (e: KonvaEventObject<globalThis.PointerEvent>) => {
+  const handleContextMenu = () => {
     // type = contextmenu
-    onRightClick(coOrd, e.type);
+    onRightClick(coOrd, 'contextmenu');
   };
 
   const gradientArray = new Gradient()

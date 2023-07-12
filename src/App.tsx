@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
 import useImage from 'use-image';
 import useInterval from 'useInterval';
-import { Coordinate, GameSquare } from 'types';
+import { Coordinate, EventType, GameSquare } from 'types';
 import image from 'images/stop.png';
 import Square from './Square';
 import gameOverImage from './images/mime_color.png';
@@ -272,7 +272,7 @@ function App() {
     return nextStateGame;
   };
 
-  const handleSquareSelect = (coOrd: Coordinate, type: string): void => {
+  const handleSquareSelect = (coOrd: Coordinate, type: EventType): void => {
     let nextStateGame: Map<Coordinate, GameSquare> | null = game;
     if (!isStarted && game) {
       // Game just began! Populate the game board first
