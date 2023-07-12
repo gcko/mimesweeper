@@ -9,10 +9,10 @@ type SquareProps = {
   x: number;
   y: number;
   size: number;
-  coord: string;
-  onSelect: (coord: string, type: string) => void;
-  onRightClick: (coord: string, type: string) => void;
-  onDoubleClick: (coord: string, type: string) => void;
+  coOrd: string;
+  onSelect: (coOrd: string, type: string) => void;
+  onRightClick: (coOrd: string, type: string) => void;
+  onDoubleClick: (coOrd: string, type: string) => void;
 };
 const unopenedColor = '#FFFFFF';
 const openedColor = '#1bbb00';
@@ -20,7 +20,7 @@ const gradientEnd = '#ffea00';
 const mimeColor = '#f80000';
 
 function Square({
-  coord,
+  coOrd,
   x,
   y,
   size,
@@ -39,18 +39,18 @@ function Square({
   const handleClick = (e: KonvaEventObject<MouseEvent>) => {
     // if this square hides a mime, game over :(
     // type = click
-    onSelect(coord, e.type);
+    onSelect(coOrd, e.type);
   };
 
   const handleDblClick = (e: KonvaEventObject<MouseEvent>) => {
     // type = dblclick
     // handler for a double click event
-    onDoubleClick(coord, e.type);
+    onDoubleClick(coOrd, e.type);
   };
 
   const handleContextMenu = (e: KonvaEventObject<globalThis.PointerEvent>) => {
     // type = contextmenu
-    onRightClick(coord, e.type);
+    onRightClick(coOrd, e.type);
   };
 
   const gradientArray = new Gradient()

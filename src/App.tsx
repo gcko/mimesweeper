@@ -402,7 +402,7 @@ function App() {
           {Array.from(game ? game.entries() : []).map(([key, square]) => (
             <Square
               key={key}
-              coord={key}
+              coOrd={key}
               x={square.x}
               y={square.y}
               size={squareSide}
