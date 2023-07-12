@@ -30,7 +30,7 @@ enum MimeSize {
 }
 
 // Magic number. The amount of retries to allow for placing mimes until it will force-exit the while-loop
-const FAILSAFE = 100;
+const INITIAL_FAILSAFE = 100;
 
 // width/height of each square in px
 const squareSide = 25;
@@ -166,14 +166,13 @@ function App() {
     // randomly populate with mimes - This should happen after the first click on a game square
     Array.from({ length: numMimes }).forEach(() => {
       let potentialMimeLocation = generateCoOrd(boardSize);
-      let failSafe = FAILSAFE;
+      let failSafe = INITIAL_FAILSAFE;
       // if the potential location is included in the mime locations,
       //  generate new coordinates until it is no longer in the existing locations,
       //  the failSafe has been triggered, or the coordinates is not the same as the currentPieceCoOrds
       while (
-        mimeLocations.includes(potentialMimeLocation) ||
-        failSafe < 1 ||
-        potentialMimeLocation === currentPieceCoOrds
+        (mimeLocations.includes(potentialMimeLocation) && failSafe > 1) ||
+        (potentialMimeLocation === currentPieceCoOrds && failSafe > 1)
       ) {
         potentialMimeLocation = generateCoOrd(boardSize);
         failSafe -= 1;
@@ -183,19 +182,19 @@ function App() {
     const upcomingGame = new Map<string, GameSquare>(entries);
     // Update game with mimes first, then update the adjacent squares
     mimeLocations
-      .map((location) => {
-        const square: GameSquare | undefined = upcomingGame.get(location);
+      .map((mimeLocation) => {
+        const square: GameSquare | undefined = upcomingGame.get(mimeLocation);
         if (square) {
           square.mime = true;
-          upcomingGame.set(location, square);
+          upcomingGame.set(mimeLocation, square);
         }
-        return location;
+        return mimeLocation;
       })
-      .forEach((location) => {
-        const square = upcomingGame.get(location);
+      .forEach((mimeLocation) => {
+        const square = upcomingGame.get(mimeLocation);
         if (square) {
           // Update surrounding squares' adjacentMimes
-          updateAdjacent({ location, upcomingGame, boardSize });
+          updateAdjacent({ location: mimeLocation, upcomingGame, boardSize });
         }
       });
     return upcomingGame;
