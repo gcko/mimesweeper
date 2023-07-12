@@ -2,6 +2,10 @@
   "name": "mimesweeper",
   "version": "0.1.0",
   "private": true,
+  "engineStrict": true,
+  "engines": {
+    "node": ">= 20"
+  },
   "dependencies": {
     "javascript-color-gradient": "^2.4.4",
     "konva": "^9.2.0",

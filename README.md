@@ -12,6 +12,30 @@ The game has the following rules:
 7. If the number in a square is equal to the number of squares touching that square that are flagged, \
     double-clicking on the number opens up all remaining squares around the number. (Note: this won’t work on touch screen devices)
 
+## Quick start
+
+### Traditional Method
+This project uses Node >= 20, this is strictly enforced. you can run Node 20 in a sub environment 
+using [Nave](https://github.com/isaacs/nave) or [NVM](https://github.com/nvm-sh/nvm)
+
+From the project root directory, run the following:
+```shell
+# only if you use nave
+nave auto
+```
+
+```shell
+npm install
+```
+
+### Container Method
+This project can be spun up within Docker. Simply run:
+**NOTE:** For Apple Silicon Mac, the [platform parameters](https://stackoverflow.com/questions/65612411/forcing-docker-to-use-linux-amd64-platform-by-default-on-macos currently do not work.
+
+```shell
+docker compose up
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
