@@ -87,19 +87,19 @@ function updateAdjacent({
         !(xVal === x && yVal === y) ||
         (xVal >= 0 && yVal >= 0 && xVal < boardSize && yVal < boardSize)
       ) {
-        // it is not the center game piece and xVal and yVal are in bounds
+        // it is not the center game square and xVal and yVal are in bounds
         const coords = coOrdKey(xVal, yVal);
-        const piece = upcomingGame.get(coords);
+        const square = upcomingGame.get(coords);
         if (type === AdjacentUpdate.mimes) {
           // Logic to handle updating number of Adjacent mimes
-          if (piece && !piece.mime) {
-            piece.adjacentMimes += 1;
-            upcomingGame.set(coords, piece);
+          if (square && !square.mime) {
+            square.adjacentMimes += 1;
+            upcomingGame.set(coords, square);
           }
         } else if (type === AdjacentUpdate.open) {
           // Logic to open Adjacent Squares (won't open flagged squares)
-          if (piece && !piece.flagged) {
-            piece.opened = true;
+          if (square && !square.flagged) {
+            square.opened = true;
           }
         }
       }
@@ -124,41 +124,41 @@ function allAdjacentMimesAreFlagged({
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
       if (!(xVal === x && yVal === y)) {
-        // it is not the center game piece and xVal and yVal are in bounds
+        // it is not the center game square and xVal and yVal are in bounds
         const coords = coOrdKey(xVal, yVal);
-        const piece = upcomingGame.get(coords);
-        if (piece && piece.mime) {
+        const square = upcomingGame.get(coords);
+        if (square && square.mime) {
           adjacentMimes += 1;
-          if (piece.flagged) {
+          if (square.flagged) {
             flaggedAdjacent += 1;
           }
         }
       }
     });
   });
-  console.warn('flagged', flaggedAdjacent, 'mimes', adjacentMimes);
   return flaggedAdjacent === adjacentMimes;
 }
 
 function App() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [numMimes, setNumMimes] = useState(initialNumMimes);
-  const [numFlaggedMimes, setNumFlaggedMimes] = useState(0);
-  const [boardSize, setBoardSize] = useState(initialGridSize);
+  // Handle state for the game
   const [game, setGame] = useState<Map<string, GameSquare> | null>(null);
+  const [boardSize, setBoardSize] = useState(initialGridSize);
   const [isStarted, setStarted] = useState(false);
   const [isGameOver, setGameOver] = useState(false);
+  // TODO state to implement game winning condition
   // const [isGameWon, setGameWon] = useState(false);
+  const [numMimes, setNumMimes] = useState(initialNumMimes);
+  const [numFlaggedMimes, setNumFlaggedMimes] = useState(0);
+  const [playTime, setPlayTime] = useState(0);
+
+  // Images that are passed to each square for the flag and game over mime
   const [flag] = useImage(image);
   const [gameOverMime] = useImage(gameOverImage);
-  const [playTime, setPlayTime] = useState(0);
-  // numFlags -> equivalent to the number of mimes
-  // numFlagged -> hold on to this, then you can calculate the number of flags remaining
 
   function populateMimes(
     entries: Array<[string, GameSquare]>,
-    safeHaven = '-1|-1'
-  ) {
+    currentPieceCoOrds: string = '-1|-1'
+  ): Map<string, GameSquare> {
     // reset mimeLocations as this is setting up a new Game
     const mimeLocations: string[] = [];
     // randomly populate with mimes - This should happen after the first click on a game square
@@ -167,11 +167,11 @@ function App() {
       let failSafe = 100;
       // if the potential location is included in the mime locations,
       //  generate new coordinates until it is no longer in the existing locations,
-      //  the failSafe has been triggered, or the coordinates is not the same as the safeHaven
+      //  the failSafe has been triggered, or the coordinates is not the same as the currentPieceCoOrds
       while (
         mimeLocations.includes(potentialMimeLocation) ||
         failSafe < 1 ||
-        potentialMimeLocation === safeHaven
+        potentialMimeLocation === currentPieceCoOrds
       ) {
         potentialMimeLocation = generateCoOrd(boardSize);
         failSafe -= 1;
@@ -182,7 +182,7 @@ function App() {
     // Update game with mimes first, then update the adjacent squares
     mimeLocations
       .map((location) => {
-        const square = upcomingGame.get(location);
+        const square: GameSquare | undefined = upcomingGame.get(location);
         if (square) {
           square.mime = true;
           upcomingGame.set(location, square);
@@ -199,59 +199,87 @@ function App() {
     return upcomingGame;
   }
 
-  const handleSquareSelect = (coord: string, type: string) => {
-    let nextStateGame: Map<string, GameSquare> | null = game;
-    if (!isStarted && game) {
-      // Game just began! need to populate the game board first
-      nextStateGame = populateMimes(Array.from(game.entries()), coord);
-      // game is now in started state
-      setStarted(() => true);
-    }
-    const square = game?.get(coord);
-    if (nextStateGame && square) {
-      if (type === 'contextmenu' && !square.opened) {
-        // this is a right click
-        square.flagged = !square.flagged;
-        if (square.flagged && square.mime) {
-          setNumFlaggedMimes((prevState) => prevState + 1);
-        }
-      } else if (square.mime && !square.flagged) {
-        // not right-click, not a flag, and hit a mime. Game over
-        square.opened = true;
-        setGameOver(true);
-      } else if (!square.flagged) {
-        // not right-click, not a flag, and not a mime
-        square.opened = true;
-        if (square.adjacentMimes === 0) {
-          // If there are no adjacentMimes, open all adjacent Squares
-          updateAdjacent({
-            location: coord,
-            upcomingGame: nextStateGame,
-            type: AdjacentUpdate.open,
-            boardSize,
-          });
-        }
-        // TODO game is over when numMimes === numFlagged AND the positions in the mimeLocations and flagLocations
-        //  arrays are equivalent when sorted
+  const handleRightClick = (square: GameSquare) => {
+    if (!square.opened) {
+      // this is a right click
+      square.flagged = !square.flagged;
+      if (square.flagged && square.mime) {
+        setNumFlaggedMimes((prevState) => prevState + 1);
       }
-      if (
-        type === 'dblclick' &&
-        square.opened &&
-        square.adjacentMimes > 0 &&
-        allAdjacentMimesAreFlagged({
-          location: coord,
-          upcomingGame: nextStateGame,
-        })
-      ) {
-        // if all adjacent mimes are flagged, open adjacent squares
+    }
+    return square;
+  };
+
+  const handleSquareClick = (
+    coOrd: string,
+    nextStateGame: Map<string, GameSquare>,
+    square: GameSquare
+  ): Map<string, GameSquare> => {
+    if (square.mime && !square.flagged) {
+      // not right-click, not a flag, and hit a mime. Game over
+      square.opened = true;
+      setGameOver(true);
+    } else if (!square.flagged) {
+      // not right-click, not a flag, and not a mime
+      square.opened = true;
+      if (square.adjacentMimes === 0) {
+        // If there are no adjacentMimes, open all adjacent Squares
         updateAdjacent({
-          location: coord,
+          location: coOrd,
           upcomingGame: nextStateGame,
           type: AdjacentUpdate.open,
           boardSize,
         });
       }
-      nextStateGame.set(coord, square);
+    }
+    return nextStateGame;
+  };
+
+  const handleDoubleClick = (
+    coOrd: string,
+    nextStateGame: Map<string, GameSquare>,
+    square: GameSquare
+  ) => {
+    if (
+      square.opened &&
+      square.adjacentMimes > 0 &&
+      allAdjacentMimesAreFlagged({
+        location: coOrd,
+        upcomingGame: nextStateGame,
+      })
+    ) {
+      // if all adjacent mimes are flagged, open adjacent squares
+      updateAdjacent({
+        location: coOrd,
+        upcomingGame: nextStateGame,
+        type: AdjacentUpdate.open,
+        boardSize,
+      });
+    }
+    return nextStateGame;
+  };
+
+  const handleSquareSelect = (coOrd: string, type: string): void => {
+    let nextStateGame: Map<string, GameSquare> | null = game;
+    if (!isStarted && game) {
+      // Game just began! Populate the game board first
+      nextStateGame = populateMimes(Array.from(game.entries()), coOrd);
+      // Game is now in started state
+      setStarted(() => true);
+    }
+    const square = game?.get(coOrd);
+    if (nextStateGame && square) {
+      if (type === 'contextmenu') {
+        handleRightClick(square);
+      } else if (type === 'click') {
+        handleSquareClick(coOrd, nextStateGame, square);
+        // TODO game is over when numMimes === numFlagged AND the positions in the mimeLocations and flagLocations
+        //  arrays are equivalent when sorted
+      }
+      if (type === 'dblclick') {
+        handleDoubleClick(coOrd, nextStateGame, square);
+      }
+      nextStateGame.set(coOrd, square);
       setGame(() => new Map(nextStateGame));
     }
   };
