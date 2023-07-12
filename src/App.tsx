@@ -398,6 +398,7 @@ function App() {
         width={squareSide * boardSize}
         height={squareSide * boardSize}
         className="stage"
+        data-test-id="stage"
       >
         <Layer>
           {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
