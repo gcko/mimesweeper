@@ -60,35 +60,42 @@ function coOrdKey(x: number, y: number): Coordinate {
   return `${x}|${y}`;
 }
 
-function generateCoOrd(boardSize: number): Coordinate {
+// Given the board size, generate random coordinates within the board
+function generateRandomCoOrd(boardSize: number): Coordinate {
   // generate a random location
   const x = Math.round(Math.random() * boardSize);
   const y = Math.round(Math.random() * boardSize);
   return coOrdKey(x, y);
 }
 
-function getCoOrd(location: Coordinate, xOrY: 'x' | 'y'): number {
-  if (xOrY === 'x') {
-    return parseInt(location.slice(0, location.indexOf('|')), 10);
-  }
-  return parseInt(location.slice(location.indexOf('|') + 1), 10);
+// Given a Coordinate, return the values as an array of [x, y]
+function getCoOrd(location: Coordinate): [number, number] {
+  return [
+    parseInt(location.slice(0, location.indexOf('|')), 10) || -1,
+    parseInt(location.slice(location.indexOf('|') + 1), 10) || -1,
+  ];
 }
 
 interface AdjacentProps {
+  // Coordinates of a square
   location: Coordinate;
+  // Game that is being manipulated
   upcomingGame: Map<Coordinate, GameSquare>;
+  // Type of update
   type?: AdjacentUpdate;
+  // Size of the game board in number of squares
   boardSize: GridSize;
 }
 
+// function that will update squares adjacent to the square given by location.
+//  Pass in the type to choose between updating adjacent mime value or opening the square
 function updateAdjacent({
   location,
   upcomingGame,
   type = AdjacentUpdate.mimes,
   boardSize,
 }: AdjacentProps) {
-  const x = getCoOrd(location, 'x');
-  const y = getCoOrd(location, 'y');
+  const [x, y] = getCoOrd(location);
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
       if (
@@ -127,8 +134,7 @@ function allAdjacentMimesAreFlagged({
   let flaggedAdjacent = 0;
   let adjacentMimes = 0;
   // return the number of flagged Adjacent squares
-  const x = getCoOrd(location, 'x');
-  const y = getCoOrd(location, 'y');
+  const [x, y] = getCoOrd(location);
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
       if (!(xVal === x && yVal === y)) {
@@ -171,7 +177,7 @@ function App() {
     const mimeLocations: Coordinate[] = [];
     // randomly populate with mimes - This should happen after the first click on a game square
     Array.from({ length: numMimes }).forEach(() => {
-      let potentialMimeLocation: Coordinate = generateCoOrd(boardSize);
+      let potentialMimeLocation: Coordinate = generateRandomCoOrd(boardSize);
       let failSafe = INITIAL_FAILSAFE;
       // if the potential location is included in the mime locations,
       //  generate new coordinates until it is no longer in the existing locations,
@@ -180,7 +186,7 @@ function App() {
         (mimeLocations.includes(potentialMimeLocation) && failSafe > 1) ||
         (potentialMimeLocation === currentPieceCoOrds && failSafe > 1)
       ) {
-        potentialMimeLocation = generateCoOrd(boardSize);
+        potentialMimeLocation = generateRandomCoOrd(boardSize);
         failSafe -= 1;
       }
       mimeLocations.push(potentialMimeLocation);
