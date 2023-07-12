@@ -29,6 +29,9 @@ enum MimeSize {
   XL = 100,
 }
 
+// Magic number. The amount of retries to allow for placing mimes until it will force-exit the while-loop
+const FAILSAFE = 100;
+
 // width/height of each square in px
 const squareSide = 25;
 
@@ -90,13 +93,13 @@ function updateAdjacent({
         const coords = coOrdKey(xVal, yVal);
         const square = upcomingGame.get(coords);
         if (type === AdjacentUpdate.mimes) {
-          // Logic to handle updating number of Adjacent mimes
+          // Update number of Adjacent mimes (only update if the square is not a mime)
           if (square && !square.mime) {
             square.adjacentMimes += 1;
             upcomingGame.set(coords, square);
           }
         } else if (type === AdjacentUpdate.open) {
-          // Logic to open Adjacent Squares (won't open flagged squares)
+          // Open Adjacent Squares (do not open flagged squares)
           if (square && !square.flagged) {
             square.opened = true;
           }
@@ -163,7 +166,7 @@ function App() {
     // randomly populate with mimes - This should happen after the first click on a game square
     Array.from({ length: numMimes }).forEach(() => {
       let potentialMimeLocation = generateCoOrd(boardSize);
-      let failSafe = 100;
+      let failSafe = FAILSAFE;
       // if the potential location is included in the mime locations,
       //  generate new coordinates until it is no longer in the existing locations,
       //  the failSafe has been triggered, or the coordinates is not the same as the currentPieceCoOrds

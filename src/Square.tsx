@@ -14,10 +14,16 @@ type SquareProps = {
   onRightClick: (coOrd: string, type: string) => void;
   onDoubleClick: (coOrd: string, type: string) => void;
 };
+
+// Capture all the colors and magic number settings in Square
 const unopenedColor = '#FFFFFF';
 const openedColor = '#1bbb00';
 const gradientEnd = '#ffea00';
 const mimeColor = '#f80000';
+const shadowColor = '#000000';
+const shadowBlurSize = 7;
+const textPadding = 5;
+const gradientMidpoint = 4;
 
 function Square({
   coOrd,
@@ -55,7 +61,7 @@ function Square({
 
   const gradientArray = new Gradient()
     .setColorGradient(openedColor, gradientEnd)
-    .setMidpoint(4)
+    .setMidpoint(gradientMidpoint)
     .getColors();
 
   useEffect(() => {
@@ -82,8 +88,8 @@ function Square({
         width={size}
         height={size}
         fill={color}
-        shadowBlur={7}
-        shadowColor="#000000"
+        shadowBlur={shadowBlurSize}
+        shadowColor={shadowColor}
       />
       {/* eslint-disable-next-line no-nested-ternary */}
       {flagged ? (
@@ -96,7 +102,7 @@ function Square({
           y={y}
           width={size}
           height={size}
-          padding={5}
+          padding={textPadding}
           align="center"
           text={opened ? `${adjacentMimes}` : ``}
           fontFamily="Press Start 2P"
