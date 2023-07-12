@@ -10,8 +10,9 @@ type SquareProps = {
   y: number;
   size: number;
   coord: string;
-  onSelect: (coord: string, e: MouseEvent) => void;
-  onRightClick: (coord: string, e: PointerEvent) => void;
+  onSelect: (coord: string, type: string) => void;
+  onRightClick: (coord: string, type: string) => void;
+  onDoubleClick: (coord: string, type: string) => void;
 };
 const unopenedColor = '#FFFFFF';
 const openedColor = '#1bbb00';
@@ -25,21 +26,30 @@ function Square({
   size,
   onSelect,
   onRightClick,
+  onDoubleClick,
   mime,
   opened,
   flagged,
   flag,
+  gameOverMime,
   adjacentMimes,
 }: SquareProps & GameSquare) {
   const [color, setColor] = useState(unopenedColor);
   const handleClick = (e: KonvaEventObject<MouseEvent>) => {
     // if this square hides a mime, game over :(
-    onSelect(coord, e.evt);
+    // type = click
+    onSelect(coord, e.type);
+  };
+
+  const handleDblClick = (e: KonvaEventObject<MouseEvent>) => {
+    // type = dblclick
+    // handler for a double click event
+    onDoubleClick(coord, e.type);
   };
 
   const handleContextMenu = (e: KonvaEventObject<globalThis.PointerEvent>) => {
-    // type == contextmenu
-    onRightClick(coord, e.evt);
+    // type = contextmenu
+    onRightClick(coord, e.type);
   };
 
   const gradientArray = new Gradient()
@@ -58,7 +68,11 @@ function Square({
   }, [mime, opened, adjacentMimes, gradientArray]);
 
   return (
-    <Group onClick={handleClick} onContextMenu={handleContextMenu}>
+    <Group
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
+      onDblClick={handleDblClick}
+    >
       <Rect
         x={x}
         y={y}
@@ -68,8 +82,11 @@ function Square({
         shadowBlur={7}
         shadowColor="#000000"
       />
+      {/* eslint-disable-next-line no-nested-ternary */}
       {flagged ? (
         <Image image={flag} height={size} width={size} x={x} y={y} />
+      ) : opened && mime ? (
+        <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (
         <Text
           x={x}

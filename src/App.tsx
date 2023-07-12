@@ -5,7 +5,7 @@ import useInterval from 'useInterval';
 import { GameSquare } from 'types';
 import image from 'images/stop.png';
 import Square from './Square';
-import logo from './images/mime_bw.png';
+import gameOverImage from './images/mime_color.png';
 import 'App.scss';
 
 enum AdjacentUpdate {
@@ -21,15 +21,23 @@ enum GridSize {
   XL = 40,
 }
 
+enum MimeSize {
+  XS = 5,
+  S = 20,
+  M = 20,
+  L = 50,
+  XL = 100,
+}
+
 // width/height of each square in px
 const squareSide = 25;
 
 // play area number of squares
-const initialGridSize = GridSize.XL;
+const initialGridSize = GridSize.L;
 
 // Initial number of mimes. On initialization of the game,
 //  the squares with the mimes need to be initialized
-const initialNumMimes: number = 100;
+const initialNumMimes: number = MimeSize.L;
 
 // Additional score added based on speed of completion
 //  bonus will count down by 10 every 5 seconds after initial 10 seconds
@@ -99,14 +107,49 @@ function updateAdjacent({
   });
 }
 
+interface FlaggedAdjacentProps {
+  location: string;
+  upcomingGame: Map<string, GameSquare>;
+}
+
+function allAdjacentMimesAreFlagged({
+  location,
+  upcomingGame,
+}: FlaggedAdjacentProps): boolean {
+  let flaggedAdjacent = 0;
+  let adjacentMimes = 0;
+  // return the number of flagged Adjacent squares
+  const x = getCoOrd(location, 'x');
+  const y = getCoOrd(location, 'y');
+  Array.of(x - 1, x, x + 1).forEach((xVal) => {
+    Array.of(y - 1, y, y + 1).forEach((yVal) => {
+      if (xVal !== x && yVal !== y) {
+        // it is not the center game piece and xVal and yVal are in bounds
+        const coords = coOrdKey(xVal, yVal);
+        const piece = upcomingGame.get(coords);
+        if (piece && piece.mime) {
+          adjacentMimes += 1;
+          if (piece.flagged) {
+            flaggedAdjacent += 1;
+          }
+        }
+      }
+    });
+  });
+  return flaggedAdjacent === adjacentMimes;
+}
+
 function App() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [numMimes, setNumMimes] = useState(initialNumMimes);
+  const [numFlaggedMimes, setNumFlaggedMimes] = useState(0);
   const [boardSize, setBoardSize] = useState(initialGridSize);
   const [game, setGame] = useState<Map<string, GameSquare> | null>(null);
   const [isStarted, setStarted] = useState(false);
   const [isGameOver, setGameOver] = useState(false);
+  // const [isGameWon, setGameWon] = useState(false);
   const [flag] = useImage(image);
+  const [gameOverMime] = useImage(gameOverImage);
   const [playTime, setPlayTime] = useState(0);
   // numFlags -> equivalent to the number of mimes
   // numFlagged -> hold on to this, then you can calculate the number of flags remaining
@@ -115,7 +158,7 @@ function App() {
     entries: Array<[string, GameSquare]>,
     safeHaven = '-1|-1'
   ) {
-    // store mimeLocations to lookup during generation
+    // reset mimeLocations as this is setting up a new Game
     const mimeLocations: string[] = [];
     // randomly populate with mimes - This should happen after the first click on a game square
     Array.from({ length: numMimes }).forEach(() => {
@@ -155,7 +198,7 @@ function App() {
     return upcomingGame;
   }
 
-  const handleSquareSelect = (coord: string, e: MouseEvent | PointerEvent) => {
+  const handleSquareSelect = (coord: string, type: string) => {
     let nextStateGame: Map<string, GameSquare> | null = game;
     if (!isStarted && game) {
       // Game just began! need to populate the game board first
@@ -165,9 +208,12 @@ function App() {
     }
     const square = game?.get(coord);
     if (nextStateGame && square) {
-      if (e.type === 'contextmenu') {
+      if (type === 'contextmenu' && !square.opened) {
         // this is a right click
         square.flagged = !square.flagged;
+        if (square.flagged && square.mime) {
+          setNumFlaggedMimes((prevState) => prevState + 1);
+        }
       } else if (square.mime && !square.flagged) {
         // not right-click, not a flag, and hit a mime. Game over
         square.opened = true;
@@ -184,9 +230,25 @@ function App() {
             boardSize,
           });
         }
-        // TODO game is over if numMimes === numFlagged === num unopened squares. Better yet, bump mimeLocations up
-        //  to the parent context and also hold onto flagLocations, sorted. then you can compare the two during the times
-        //  when numMimes === numFlagged. this significantly reduces computation
+        // TODO game is over when numMimes === numFlagged AND the positions in the mimeLocations and flagLocations
+        //  arrays are equivalent when sorted
+      }
+      if (
+        type === 'dblclick' &&
+        square.opened &&
+        square.adjacentMimes > 0 &&
+        allAdjacentMimesAreFlagged({
+          location: coord,
+          upcomingGame: nextStateGame,
+        })
+      ) {
+        // if all adjacent mimes are flagged, open adjacent squares
+        updateAdjacent({
+          location: coord,
+          upcomingGame: nextStateGame,
+          type: AdjacentUpdate.open,
+          boardSize,
+        });
       }
       nextStateGame.set(coord, square);
       setGame(() => new Map(nextStateGame));
@@ -210,6 +272,7 @@ function App() {
           opened: false,
           flagged: false,
           flag: flag as HTMLImageElement,
+          gameOverMime: gameOverMime as HTMLImageElement,
           x: xIndex * squareSide,
           y: yIndex * squareSide,
         },
@@ -217,7 +280,7 @@ function App() {
       return prevValue.concat(currentList);
     }, []);
     return new Map<string, GameSquare>(entries);
-  }, [boardSize, flag]);
+  }, [boardSize, flag, gameOverMime]);
 
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
@@ -253,41 +316,51 @@ function App() {
       {isGameOver ? (
         <div className="overlay">
           <div className="content">
-            <h4>GAME OVER</h4>
-            <button type="button" onClick={() => restart(20, GridSize.M)}>
-              Start a new medium game
-            </button>
-            <button type="button" onClick={() => restart(50, GridSize.L)}>
-              Start a new large game
-            </button>
-            <button type="button" onClick={() => restart(100, GridSize.XL)}>
-              Start a new xl game
-            </button>
+            <h4>GAME OVER!</h4>
+            <img
+              alt="Game Over!"
+              src={gameOverImage}
+              style={{ width: '8rem' }}
+            />
+            <p>New Game?</p>
+            <div className="buttons">
+              <button
+                type="button"
+                onClick={() => restart(MimeSize.S, GridSize.S)}
+              >
+                Small game
+              </button>
+              <button
+                type="button"
+                onClick={() => restart(MimeSize.M, GridSize.M)}
+              >
+                Medium game
+              </button>
+              <button
+                type="button"
+                onClick={() => restart(MimeSize.L, GridSize.L)}
+              >
+                Large game
+              </button>
+              <button
+                type="button"
+                onClick={() => restart(MimeSize.XL, GridSize.XL)}
+              >
+                XL game
+              </button>
+            </div>
           </div>
         </div>
       ) : (
         ''
       )}
+      <h4>Mimesweeper</h4>
       <h4>
-        Mimesweeper <small>Play time: {playTime}s</small>
+        <small>
+          Play time: {playTime}s | Mimes Remaining: {numMimes - numFlaggedMimes}
+        </small>
       </h4>
-      <div className="mimes">
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-        <img alt="logo" src={logo} style={{ width: '4rem' }} />
-      </div>
+      <div className="mimes" style={{ width: `${squareSide * boardSize}px` }} />
       <Stage
         width={squareSide * boardSize}
         height={squareSide * boardSize}
@@ -307,12 +380,29 @@ function App() {
               opened={square.opened}
               flagged={square.flagged}
               flag={square.flag}
+              gameOverMime={square.gameOverMime}
               onSelect={handleSquareSelect}
               onRightClick={handleSquareSelect}
+              onDoubleClick={handleSquareSelect}
             />
           ))}
         </Layer>
       </Stage>
+      <p style={{ marginTop: '1rem' }}>Restart?</p>
+      <div className="buttons">
+        <button type="button" onClick={() => restart(MimeSize.S, GridSize.S)}>
+          Small game
+        </button>
+        <button type="button" onClick={() => restart(MimeSize.M, GridSize.M)}>
+          Medium game
+        </button>
+        <button type="button" onClick={() => restart(MimeSize.L, GridSize.L)}>
+          Large game
+        </button>
+        <button type="button" onClick={() => restart(MimeSize.XL, GridSize.XL)}>
+          XL game
+        </button>
+      </div>
     </div>
   );
 }

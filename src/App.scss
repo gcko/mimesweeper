@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 body {
-  background: white;
+  background: url("images/bg.jpg") white no-repeat;
   font-family: 'Press Start 2P', cursive;
 }
 
@@ -10,17 +10,41 @@ body {
   margin: auto;
   text-align: center;
 
+  > h4 {
+    color: #FFFFFF;
+  }
+
   .mimes {
     margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    height: 4rem;
+    background-image: url("images/mime_bw.png");
+    background-repeat: repeat-x;
+    background-size: 4rem;
+    filter: invert(100%);
+  }
+
+  button {
+    background-color: #4b5052;
+    border: 2px solid #000000;
+    color: #F5F5F5FF;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    font-size: 1rem;
+    display: inline-block;
+    font-family: 'Press Start 2P', cursive;
   }
 
   button + button {
-    margin-left: .5rem;
+    margin: .5rem;
   }
 
   .stage {
     box-shadow: 0 0 5px 1px #000000;
     width: fit-content;
+    margin: auto;
   }
 
   .overlay {
@@ -37,10 +61,14 @@ body {
       left: 35vw;
       position: absolute;
       width: 30rem;
-      height: 10rem;
+      height: fit-content;
       background-color: #FFFFFF;
       padding: 2rem;
       box-shadow: 0 0 1rem .2rem #000000;
+
+      .buttons {
+        margin-top: 1rem;
+      }
     }
   }
 }

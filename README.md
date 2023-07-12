@@ -9,7 +9,8 @@ The game has the following rules:
 4. This first click can never be a mine.
 5. The numbers reflect the number of mines touching a square.
 6. Right-clicking on a square puts a flag on it. The flagged square can’t be opened by a click.
-7. If the number in a square is equal to the number of squares touching that square that are flagged, double clicking on the number opens up all remaining squares around the number. (Note: this won’t work on touch screen devices)
+7. If the number in a square is equal to the number of squares touching that square that are flagged, \
+    double-clicking on the number opens up all remaining squares around the number. (Note: this won’t work on touch screen devices)
 
 ## Available Scripts
 

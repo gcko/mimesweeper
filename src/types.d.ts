@@ -4,6 +4,7 @@ export interface GameSquare {
   opened: boolean;
   flagged: boolean;
   flag: HTMLImageElement;
+  gameOverMime: HTMLImageElement;
   x: number; // starting x value
   y: number; // starting y value
 }
