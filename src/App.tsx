@@ -84,7 +84,7 @@ function updateAdjacent({
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
       if (
-        (xVal !== x && yVal !== y) ||
+        !(xVal === x && yVal === y) ||
         (xVal >= 0 && yVal >= 0 && xVal < boardSize && yVal < boardSize)
       ) {
         // it is not the center game piece and xVal and yVal are in bounds
@@ -123,7 +123,7 @@ function allAdjacentMimesAreFlagged({
   const y = getCoOrd(location, 'y');
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
-      if (xVal !== x && yVal !== y) {
+      if (!(xVal === x && yVal === y)) {
         // it is not the center game piece and xVal and yVal are in bounds
         const coords = coOrdKey(xVal, yVal);
         const piece = upcomingGame.get(coords);
@@ -136,6 +136,7 @@ function allAdjacentMimesAreFlagged({
       }
     });
   });
+  console.warn('flagged', flaggedAdjacent, 'mimes', adjacentMimes);
   return flaggedAdjacent === adjacentMimes;
 }
 
@@ -271,6 +272,7 @@ function App() {
           adjacentMimes: 0,
           opened: false,
           flagged: false,
+          isGameOver,
           flag: flag as HTMLImageElement,
           gameOverMime: gameOverMime as HTMLImageElement,
           x: xIndex * squareSide,
@@ -380,6 +382,7 @@ function App() {
               opened={square.opened}
               flagged={square.flagged}
               flag={square.flag}
+              isGameOver={square.isGameOver}
               gameOverMime={square.gameOverMime}
               onSelect={handleSquareSelect}
               onRightClick={handleSquareSelect}

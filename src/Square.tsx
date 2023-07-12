@@ -30,6 +30,7 @@ function Square({
   mime,
   opened,
   flagged,
+  isGameOver,
   flag,
   gameOverMime,
   adjacentMimes,
@@ -87,7 +88,7 @@ function Square({
       {/* eslint-disable-next-line no-nested-ternary */}
       {flagged ? (
         <Image image={flag} height={size} width={size} x={x} y={y} />
-      ) : opened && mime ? (
+      ) : opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (
         <Text
