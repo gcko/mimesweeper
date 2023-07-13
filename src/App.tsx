@@ -347,6 +347,7 @@ function App() {
     setStatus('waitingStart');
     setBoardSize(() => size);
     setNumMimes(() => mimes);
+    setNumFlaggedMimes(() => 0);
     setPlayTime(0);
     setGame(() => newGame());
   }
