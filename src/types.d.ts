@@ -24,3 +24,9 @@ export interface GameSquare {
 export type Coordinate = `${number}|${number}`;
 
 export type EventType = 'click' | 'dblclick' | 'contextmenu';
+
+export type GameStatus =
+  | 'waitingStart'
+  | 'inProgress'
+  | 'gameOverLost'
+  | 'gameOverWon';

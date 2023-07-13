@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
 import useImage from 'use-image';
 import useInterval from 'useInterval';
-import { Coordinate, EventType, GameSquare } from 'types';
+import { Coordinate, EventType, GameSquare, GameStatus } from 'types';
 import image from 'images/stop.png';
 import Square from './Square';
 import gameOverImage from './images/mime_color.png';
@@ -171,8 +171,7 @@ function App() {
   // Handle state for the game
   const [game, setGame] = useState<Map<Coordinate, GameSquare> | null>(null);
   const [boardSize, setBoardSize] = useState(initialGridSize);
-  const [isStarted, setStarted] = useState(false);
-  const [isGameOver, setGameOver] = useState(false);
+  const [status, setStatus] = useState<GameStatus>('waitingStart');
   // TODO state to implement game winning condition
   // const [isGameWon, setGameWon] = useState(false);
   const [numMimes, setNumMimes] = useState(initialNumMimes);
@@ -245,7 +244,7 @@ function App() {
     if (square.mime && !square.flagged) {
       // not right-click, not a flag, and hit a mime. Game over
       square.opened = true;
-      setGameOver(() => true);
+      setStatus(() => 'gameOverLost');
     } else if (!square.flagged) {
       // not right-click, not a flag, and not a mime
       square.opened = true;
@@ -274,7 +273,8 @@ function App() {
           upcomingGame: nextStateGame,
         })
       ) {
-        setGameOver(() => true);
+        // Game over! you found a un-flagged Mime
+        setStatus(() => 'gameOverLost');
       }
       // open adjacent squares
       updateAdjacent({
@@ -289,11 +289,11 @@ function App() {
 
   const handleSquareSelect = (coOrd: Coordinate, type: EventType): void => {
     let nextStateGame: Map<Coordinate, GameSquare> | null = game;
-    if (!isStarted && game) {
+    if (status === 'waitingStart' && game) {
       // Game just began! Populate the game board first
       nextStateGame = populateMimes(Array.from(game.entries()), coOrd);
       // Game is now in started state
-      setStarted(() => true);
+      setStatus(() => 'inProgress');
     }
     const square = game?.get(coOrd);
     if (nextStateGame && square) {
@@ -327,7 +327,7 @@ function App() {
           adjacentMimes: 0,
           opened: false,
           flagged: false,
-          isGameOver,
+          isGameOver: status === 'gameOverWon' || status === 'gameOverLost',
           flag: flag as HTMLImageElement,
           gameOverMime: gameOverMime as HTMLImageElement,
           x: xIndex * squareSide,
@@ -337,17 +337,16 @@ function App() {
       return prevValue.concat(currentList);
     }, []);
     return new Map<Coordinate, GameSquare>(entries);
-  }, [boardSize, flag, gameOverMime, isGameOver]);
+  }, [boardSize, flag, gameOverMime, status]);
 
   const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault();
   }, []);
 
   function restart(mimes: number, size: GridSize = GridSize.XL): void {
-    setGameOver(() => false);
+    setStatus('waitingStart');
     setBoardSize(() => size);
     setNumMimes(() => mimes);
-    setStarted(() => false);
     setPlayTime(0);
     setGame(() => newGame());
   }
@@ -356,7 +355,7 @@ function App() {
     () => {
       setPlayTime(playTime + 1);
     },
-    isStarted && !isGameOver ? timeDelay : null
+    status === 'inProgress' ? timeDelay : null
   );
 
   useEffect(() => {
@@ -373,10 +372,12 @@ function App() {
       className="container"
       style={{ minWidth: `${squareSide * boardSize}px` }}
     >
-      {isGameOver ? (
+      {['gameOverLost', 'gameOverWon'].includes(status) ? (
         <div className="overlay">
           <div className="content">
-            <h4>GAME OVER!</h4>
+            <h4>
+              GAME OVER! You {status === 'gameOverLost' ? 'Lost :(' : 'Won! :)'}
+            </h4>
             <img
               alt="Game Over!"
               src={gameOverImage}
@@ -441,7 +442,7 @@ function App() {
               opened={square.opened}
               flagged={square.flagged}
               flag={square.flag}
-              isGameOver={square.isGameOver}
+              isGameOver={status === 'gameOverLost' || status === 'gameOverWon'}
               gameOverMime={square.gameOverMime}
               onSelect={handleSquareSelect}
               onRightClick={handleSquareSelect}
