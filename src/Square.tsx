@@ -100,7 +100,10 @@ function Square({
       {/* eslint-disable-next-line no-nested-ternary */}
       {flagged ? (
         <Image image={flagImg} height={size} width={size} x={x} y={y} />
-      ) : opened && mime && isGameOver ? (
+      ) : (
+        ''
+      )}
+      {opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (
         <Text
