@@ -78,7 +78,7 @@ function Square({
       newColor = gradientArray[adjacentMimes];
     }
     setColor(() => newColor);
-  }, [mime, opened, adjacentMimes, gradientArray]);
+  }, [mime, opened, adjacentMimes]);
 
   return (
     <Group

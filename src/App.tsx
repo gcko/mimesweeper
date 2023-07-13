@@ -69,9 +69,17 @@ function generateRandomCoOrd(boardSize: number): Coordinate {
 
 // Given a Coordinate, return the values as an array of [x, y]
 function getCoOrd(location: Coordinate): [number, number] {
+  if (
+    Number.isNaN(parseInt(location.slice(0, location.indexOf('|')), 10)) ||
+    Number.isNaN(parseInt(location.slice(location.indexOf('|') + 1), 10))
+  ) {
+    throw new Error(
+      `Unable to correctly parse x and y coordinates from given location string: "${location}"`
+    );
+  }
   return [
-    parseInt(location.slice(0, location.indexOf('|')), 10) || -1,
-    parseInt(location.slice(location.indexOf('|') + 1), 10) || -1,
+    parseInt(location.slice(0, location.indexOf('|')), 10),
+    parseInt(location.slice(location.indexOf('|') + 1), 10),
   ];
 }
 
@@ -98,6 +106,7 @@ function updateAdjacent({
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
       if (!(xVal === x && yVal === y)) {
+        // console.log(`works`);
         // it is not the center game square and xVal and yVal are in bounds
         const newSquareCoOrds = coOrdKey(xVal, yVal);
         const square = upcomingGame.get(newSquareCoOrds);
