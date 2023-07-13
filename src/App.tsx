@@ -13,6 +13,7 @@ import 'App.scss';
 enum AdjacentUpdate {
   mimes = 'MIMES',
   open = 'OPEN',
+  forceOpen = 'FORCE_OPEN',
 }
 
 // Number of Squares in the x & y direction of the play area
@@ -103,17 +104,30 @@ function updateAdjacent({
         (xVal >= 0 && yVal >= 0 && xVal < boardSize && yVal < boardSize)
       ) {
         // it is not the center game square and xVal and yVal are in bounds
-        const coords = coOrdKey(xVal, yVal);
-        const square = upcomingGame.get(coords);
+        const newSquareCoOrds = coOrdKey(xVal, yVal);
+        const square = upcomingGame.get(newSquareCoOrds);
         if (type === AdjacentUpdate.mimes) {
           // Update number of Adjacent mimes (only update if the square is not a mime)
           if (square && !square.mime) {
             square.adjacentMimes += 1;
-            upcomingGame.set(coords, square);
+            upcomingGame.set(newSquareCoOrds, square);
           }
-        } else if (type === AdjacentUpdate.open) {
-          // Open Adjacent Squares (do not open flagged squares)
-          if (square && !square.flagged) {
+        }
+        if (square && !square.flagged && !square.opened) {
+          // if the square exists, it is not flagged, and it is not already opened
+          if (type === AdjacentUpdate.open && !square.mime) {
+            // Open Adjacent Squares recursively (do not open flagged squares)
+            square.opened = true;
+            if (square.adjacentMimes === 0) {
+              updateAdjacent({
+                location: newSquareCoOrds,
+                upcomingGame,
+                type: AdjacentUpdate.open,
+                boardSize,
+              });
+            }
+          } else if (type === AdjacentUpdate.forceOpen) {
+            // even if there are mimes, open it up. Don't update recursively
             square.opened = true;
           }
         }
@@ -231,7 +245,7 @@ function App() {
     if (square.mime && !square.flagged) {
       // not right-click, not a flag, and hit a mime. Game over
       square.opened = true;
-      setGameOver(true);
+      setGameOver(() => true);
     } else if (!square.flagged) {
       // not right-click, not a flag, and not a mime
       square.opened = true;
@@ -253,19 +267,20 @@ function App() {
     nextStateGame: Map<Coordinate, GameSquare>,
     square: GameSquare
   ): Map<Coordinate, GameSquare> => {
-    if (
-      square.opened &&
-      square.adjacentMimes > 0 &&
-      allAdjacentMimesAreFlagged({
-        location: coOrd,
-        upcomingGame: nextStateGame,
-      })
-    ) {
-      // if all adjacent mimes are flagged, open adjacent squares
+    if (square.opened && square.adjacentMimes > 0) {
+      if (
+        !allAdjacentMimesAreFlagged({
+          location: coOrd,
+          upcomingGame: nextStateGame,
+        })
+      ) {
+        setGameOver(() => true);
+      }
+      // open adjacent squares
       updateAdjacent({
         location: coOrd,
         upcomingGame: nextStateGame,
-        type: AdjacentUpdate.open,
+        type: AdjacentUpdate.forceOpen,
         boardSize,
       });
     }
@@ -351,7 +366,7 @@ function App() {
       document.removeEventListener('contextmenu', handleContextMenu);
       setGame(() => null);
     };
-  }, [handleContextMenu, newGame]);
+  }, []);
 
   return (
     <div
