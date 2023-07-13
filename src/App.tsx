@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
-import useImage from 'use-image';
 import useInterval from 'useInterval';
 import { Coordinate, EventType, GameSquare, GameStatus } from 'types';
-import image from 'images/stop.png';
 import Square from './Square';
 import gameOverImage from './images/mime_color.png';
 import 'App.scss';
@@ -29,7 +27,7 @@ enum GridSize {
 enum MimeSize {
   XS = 5,
   S = 20,
-  M = 20,
+  M = 25,
   L = 50,
   XL = 100,
 }
@@ -99,21 +97,22 @@ function updateAdjacent({
   const [x, y] = getCoOrd(location);
   Array.of(x - 1, x, x + 1).forEach((xVal) => {
     Array.of(y - 1, y, y + 1).forEach((yVal) => {
-      if (
-        !(xVal === x && yVal === y) ||
-        (xVal >= 0 && yVal >= 0 && xVal < boardSize && yVal < boardSize)
-      ) {
+      if (!(xVal === x && yVal === y)) {
         // it is not the center game square and xVal and yVal are in bounds
         const newSquareCoOrds = coOrdKey(xVal, yVal);
         const square = upcomingGame.get(newSquareCoOrds);
+        if (!square) {
+          // return out of this instance if square is not defined
+          return;
+        }
         if (type === AdjacentUpdate.mimes) {
           // Update number of Adjacent mimes (only update if the square is not a mime)
-          if (square && !square.mime) {
+          if (!square.mime) {
             square.adjacentMimes += 1;
             upcomingGame.set(newSquareCoOrds, square);
           }
         }
-        if (square && !square.flagged && !square.opened) {
+        if (!square.flagged && !square.opened) {
           // if the square exists, it is not flagged, and it is not already opened
           if (type === AdjacentUpdate.open && !square.mime) {
             // Open Adjacent Squares recursively (do not open flagged squares)
@@ -155,7 +154,7 @@ function allAdjacentMimesAreFlagged({
         // it is not the center game square and xVal and yVal are in bounds
         const coords = coOrdKey(xVal, yVal);
         const square = upcomingGame.get(coords);
-        if (square && square.mime) {
+        if (square?.mime) {
           adjacentMimes += 1;
           if (square.flagged) {
             flaggedAdjacent += 1;
@@ -177,10 +176,6 @@ function App() {
   const [numMimes, setNumMimes] = useState(initialNumMimes);
   const [numFlaggedMimes, setNumFlaggedMimes] = useState(0);
   const [playTime, setPlayTime] = useState(0);
-
-  // Images that are passed to each square for the flag and game over mime
-  const [flag] = useImage(image);
-  const [gameOverMime] = useImage(gameOverImage);
 
   function populateMimes(
     entries: Array<[Coordinate, GameSquare]>,
@@ -225,7 +220,7 @@ function App() {
     return upcomingGame;
   }
 
-  const handleRightClick = (square: GameSquare) => {
+  const handleRightClick = (square: GameSquare): GameSquare => {
     if (!square.opened) {
       // this is a right click
       square.flagged = !square.flagged;
@@ -295,10 +290,10 @@ function App() {
       // Game is now in started state
       setStatus(() => 'inProgress');
     }
-    const square = game?.get(coOrd);
+    let square = game?.get(coOrd);
     if (nextStateGame && square) {
       if (type === 'contextmenu') {
-        handleRightClick(square);
+        square = handleRightClick(square);
       } else if (type === 'click') {
         handleSquareClick(coOrd, nextStateGame, square);
         // TODO game is over when numMimes === numFlagged AND the positions in the mimeLocations and flagLocations
@@ -328,8 +323,6 @@ function App() {
           opened: false,
           flagged: false,
           isGameOver: status === 'gameOverWon' || status === 'gameOverLost',
-          flag: flag as HTMLImageElement,
-          gameOverMime: gameOverMime as HTMLImageElement,
           x: xIndex * squareSide,
           y: yIndex * squareSide,
         },
@@ -337,11 +330,7 @@ function App() {
       return prevValue.concat(currentList);
     }, []);
     return new Map<Coordinate, GameSquare>(entries);
-  }, [boardSize, flag, gameOverMime, status]);
-
-  const handleContextMenu = useCallback((event: MouseEvent) => {
-    event.preventDefault();
-  }, []);
+  }, [boardSize, status]);
 
   function restart(mimes: number, size: GridSize = GridSize.XL): void {
     setStatus('waitingStart');
@@ -361,9 +350,7 @@ function App() {
 
   useEffect(() => {
     setGame(() => newGame());
-    document.addEventListener('contextmenu', handleContextMenu);
     return function cleanup() {
-      document.removeEventListener('contextmenu', handleContextMenu);
       setGame(() => null);
     };
   }, []);
@@ -442,9 +429,7 @@ function App() {
               adjacentMimes={square.adjacentMimes}
               opened={square.opened}
               flagged={square.flagged}
-              flag={square.flag}
               isGameOver={status === 'gameOverLost' || status === 'gameOverWon'}
-              gameOverMime={square.gameOverMime}
               onSelect={handleSquareSelect}
               onRightClick={handleSquareSelect}
               onDoubleClick={handleSquareSelect}

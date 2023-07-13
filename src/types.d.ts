@@ -10,10 +10,6 @@ export interface GameSquare {
   flagged: boolean;
   // Is the game currently over?
   isGameOver: boolean;
-  // Flag Image Element passed to the square
-  flag: HTMLImageElement;
-  // Image used when the game is over
-  gameOverMime: HTMLImageElement;
   // Starting X value of the square
   x: number;
   // Starting Y value of the square

@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Group, Image, Rect, Text } from 'react-konva';
 import { Coordinate, EventType, GameSquare } from 'types';
 import Gradient from 'javascript-color-gradient';
+import useImage from 'use-image';
+import flagImage from 'images/stop.png';
+import gameOverImage from 'images/mime_color.png';
+import Konva from 'konva';
+import KonvaEventObject = Konva.KonvaEventObject;
 
 type SquareProps = {
   x: number;
@@ -35,11 +40,12 @@ function Square({
   opened,
   flagged,
   isGameOver,
-  flag,
-  gameOverMime,
   adjacentMimes,
 }: SquareProps & GameSquare) {
   const [color, setColor] = useState(unopenedColor);
+
+  const [flagImg] = useImage(flagImage, undefined, 'same-origin');
+  const [gameOverMime] = useImage(gameOverImage, undefined, 'same-origin');
   const handleClick = () => {
     // if this square hides a mime, game over :(
     // type = click
@@ -52,9 +58,11 @@ function Square({
     onDoubleClick(coOrd, 'dblclick');
   };
 
-  const handleContextMenu = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleContextMenu = (e: KonvaEventObject<PointerEvent>) => {
     // type = contextmenu
     onRightClick(coOrd, 'contextmenu');
+    e.evt.preventDefault();
   };
 
   const gradientArray = new Gradient()
@@ -91,7 +99,7 @@ function Square({
       />
       {/* eslint-disable-next-line no-nested-ternary */}
       {flagged ? (
-        <Image image={flag} height={size} width={size} x={x} y={y} />
+        <Image image={flagImg} height={size} width={size} x={x} y={y} />
       ) : opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (
