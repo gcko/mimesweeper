@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
 import useInterval from 'useInterval';
 import { Coordinate, EventType, GameSquare, GameStatus } from 'types';
@@ -37,13 +37,6 @@ const INITIAL_FAILSAFE = 100;
 
 // width/height of each square in px
 const squareSide = 25;
-
-// play area number of squares
-const initialGridSize = GridSize.L;
-
-// Initial number of mimes. On initialization of the game,
-//  the squares with the mimes need to be initialized
-const initialNumMimes: number = MimeSize.L;
 
 // Additional score added based on speed of completion
 //  bonus will count down by 10 every 5 seconds after initial 10 seconds
@@ -100,10 +93,10 @@ interface FlaggedAdjacentProps {
 function App() {
   // Handle state for the game
   const [game, setGame] = useState<Map<Coordinate, GameSquare> | null>(null);
-  const [boardSize, setBoardSize] = useState(initialGridSize);
+  const [boardSize, setBoardSize] = useState(GridSize.S);
   const [status, setStatus] = useState<GameStatus>('waitingStart');
-  const [numMimes, setNumMimes] = useState(initialNumMimes);
-  const [numFlags, setNumFlags] = useState(initialNumMimes);
+  const [numMimes, setNumMimes] = useState(MimeSize.S);
+  const [numFlags, setNumFlags] = useState(MimeSize.S);
   const [, setNumOpenSpaces] = useState(0);
   const [playTime, setPlayTime] = useState(0);
 
@@ -339,14 +332,14 @@ function App() {
     }
   };
 
-  const newGame = useCallback((): Map<Coordinate, GameSquare> => {
+  const newGame = (size = GridSize.S): Map<Coordinate, GameSquare> => {
     // use the Grid Size to generate a new Game Map
     const entries: Array<[Coordinate, GameSquare]> = Array.from({
-      length: boardSize,
+      length: size,
     }).reduce((prevValue: Array<[Coordinate, GameSquare]>, _, xIndex) => {
       // generate 0 to gridSize - 1 for the current index and concat to prevValue
       const currentList: Array<[Coordinate, GameSquare]> = Array.from({
-        length: boardSize,
+        length: size,
       }).map((__, yIndex) => [
         coOrdKey(xIndex, yIndex),
         {
@@ -354,7 +347,7 @@ function App() {
           adjacentMimes: 0,
           opened: false,
           flagged: false,
-          isGameOver: status === 'gameOverWon' || status === 'gameOverLost',
+          isGameOver: false,
           x: xIndex * squareSide,
           y: yIndex * squareSide,
         },
@@ -362,16 +355,15 @@ function App() {
       return prevValue.concat(currentList);
     }, []);
     return new Map<Coordinate, GameSquare>(entries);
-  }, [boardSize, status]);
+  };
 
-  function restart(mimes: number, size: GridSize = GridSize.XL): void {
+  function restart(mimes = MimeSize.S, size: GridSize = GridSize.S): void {
     setStatus('waitingStart');
-    setBoardSize(() => size);
-    setNumMimes(() => mimes);
-    setNumFlags(() => mimes);
+    setNumMimes(mimes);
+    setNumFlags(mimes);
     setNumOpenSpaces(0);
     setPlayTime(0);
-    setGame(() => newGame());
+    setBoardSize(size);
   }
 
   useInterval(
@@ -382,11 +374,10 @@ function App() {
   );
 
   useEffect(() => {
-    setGame(() => newGame());
-    return function cleanup() {
-      setGame(() => null);
-    };
-  }, []);
+    if (status === 'waitingStart') {
+      setGame(() => newGame(boardSize));
+    }
+  }, [status, boardSize]);
 
   return (
     <div
