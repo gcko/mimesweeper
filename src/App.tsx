@@ -99,6 +99,7 @@ function App() {
   const [numFlags, setNumFlags] = useState(MimeSize.S);
   const [, setNumOpenSpaces] = useState(0);
   const [playTime, setPlayTime] = useState(0);
+  const [showRules, setShowRules] = useState(false);
 
   /**
    * function that will update squares adjacent to the square given by location.
@@ -384,6 +385,25 @@ function App() {
       className="container"
       style={{ minWidth: `${squareSide * boardSize}px` }}
     >
+      {showRules ? (
+        <div className="overlay">
+          <div className="content">
+            <h4>How to Play</h4>
+            <ol>
+              <li>Left click to open a space</li>
+              <li>Right click to flag a space</li>
+              <li>Double click to open all adjacent un-flagged spaces</li>
+            </ol>
+            <div className="buttons">
+              <button type="button" onClick={() => setShowRules(false)}>
+                Let&apos;s play!
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
       {['gameOverLost', 'gameOverWon'].includes(status) ? (
         <div className="overlay">
           <div className="content">
@@ -427,7 +447,12 @@ function App() {
       ) : (
         ''
       )}
-      <h4>Mimesweeper</h4>
+      <h4>
+        Mimesweeper{' '}
+        <button type="button" onClick={() => setShowRules(true)}>
+          How to play
+        </button>
+      </h4>
       <h4>
         <small>
           Play time: {playTime}s | Flags Remaining:{' '}

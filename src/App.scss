@@ -7,6 +7,12 @@
     color: #FFFFFF;
   }
 
+  ol li {
+    & + li {
+      margin-top: .5rem;
+    }
+  }
+
   .mimes {
     margin-top: 1rem;
     margin-left: auto;
