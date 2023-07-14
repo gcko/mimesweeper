@@ -26,7 +26,7 @@ enum GridSize {
 // Number of Mimes to place in a play area
 enum MimeSize {
   XS = 5,
-  S = 20,
+  S = 10,
   M = 25,
   L = 50,
   XL = 100,
@@ -62,8 +62,8 @@ function coOrdKey(x: number, y: number): Coordinate {
 // Given the board size, generate random coordinates within the board
 function generateRandomCoOrd(boardSize: number): Coordinate {
   // generate a random location
-  const x = Math.round(Math.random() * boardSize);
-  const y = Math.round(Math.random() * boardSize);
+  const x = Math.floor(Math.random() * boardSize);
+  const y = Math.floor(Math.random() * boardSize);
   return coOrdKey(x, y);
 }
 
@@ -90,58 +90,6 @@ interface AdjacentProps {
   upcomingGame: Map<Coordinate, GameSquare>;
   // Type of update
   type?: AdjacentUpdate;
-  // Size of the game board in number of squares
-  boardSize: GridSize;
-}
-
-// function that will update squares adjacent to the square given by location.
-//  Pass in the type to choose between updating adjacent mime value or opening the square
-function updateAdjacent({
-  location,
-  upcomingGame,
-  type = AdjacentUpdate.mimes,
-  boardSize,
-}: AdjacentProps) {
-  const [x, y] = getCoOrd(location);
-  Array.of(x - 1, x, x + 1).forEach((xVal) => {
-    Array.of(y - 1, y, y + 1).forEach((yVal) => {
-      if (!(xVal === x && yVal === y)) {
-        // console.log(`works`);
-        // it is not the center game square and xVal and yVal are in bounds
-        const newSquareCoOrds = coOrdKey(xVal, yVal);
-        const square = upcomingGame.get(newSquareCoOrds);
-        if (!square) {
-          // return out of this instance if square is not defined
-          return;
-        }
-        if (type === AdjacentUpdate.mimes) {
-          // Update number of Adjacent mimes (only update if the square is not a mime)
-          if (!square.mime) {
-            square.adjacentMimes += 1;
-            upcomingGame.set(newSquareCoOrds, square);
-          }
-        }
-        if (!square.flagged && !square.opened) {
-          // if the square exists, it is not flagged, and it is not already opened
-          if (type === AdjacentUpdate.open && !square.mime) {
-            // Open Adjacent Squares recursively (do not open flagged squares)
-            square.opened = true;
-            if (square.adjacentMimes === 0) {
-              updateAdjacent({
-                location: newSquareCoOrds,
-                upcomingGame,
-                type: AdjacentUpdate.open,
-                boardSize,
-              });
-            }
-          } else if (type === AdjacentUpdate.forceOpen) {
-            // even if there are mimes, open it up. Don't update recursively
-            square.opened = true;
-          }
-        }
-      }
-    });
-  });
 }
 
 interface FlaggedAdjacentProps {
@@ -149,42 +97,96 @@ interface FlaggedAdjacentProps {
   upcomingGame: Map<Coordinate, GameSquare>;
 }
 
-function allAdjacentMimesAreFlagged({
-  location,
-  upcomingGame,
-}: FlaggedAdjacentProps): boolean {
-  let flaggedAdjacent = 0;
-  let adjacentMimes = 0;
-  // return the number of flagged Adjacent squares
-  const [x, y] = getCoOrd(location);
-  Array.of(x - 1, x, x + 1).forEach((xVal) => {
-    Array.of(y - 1, y, y + 1).forEach((yVal) => {
-      if (!(xVal === x && yVal === y)) {
-        // it is not the center game square and xVal and yVal are in bounds
-        const coords = coOrdKey(xVal, yVal);
-        const square = upcomingGame.get(coords);
-        if (square?.mime) {
-          adjacentMimes += 1;
-          if (square.flagged) {
-            flaggedAdjacent += 1;
-          }
-        }
-      }
-    });
-  });
-  return flaggedAdjacent === adjacentMimes;
-}
-
 function App() {
   // Handle state for the game
   const [game, setGame] = useState<Map<Coordinate, GameSquare> | null>(null);
   const [boardSize, setBoardSize] = useState(initialGridSize);
   const [status, setStatus] = useState<GameStatus>('waitingStart');
-  // TODO state to implement game winning condition
-  // const [isGameWon, setGameWon] = useState(false);
   const [numMimes, setNumMimes] = useState(initialNumMimes);
-  const [numFlaggedMimes, setNumFlaggedMimes] = useState(0);
+  const [numFlags, setNumFlags] = useState(initialNumMimes);
+  const [, setNumOpenSpaces] = useState(0);
   const [playTime, setPlayTime] = useState(0);
+
+  /**
+   * function that will update squares adjacent to the square given by location.
+   * Pass in the type to choose between updating adjacent mime value or opening the square
+   * @param {AdjacentProps} number
+   * @return {number} number of squares that were opened
+   */
+  function updateAdjacent({
+    location,
+    upcomingGame,
+    type = AdjacentUpdate.mimes,
+  }: AdjacentProps): number {
+    let count = 0;
+    const [x, y] = getCoOrd(location);
+    Array.of(x - 1, x, x + 1).forEach((xVal) => {
+      Array.of(y - 1, y, y + 1).forEach((yVal) => {
+        if (!(xVal === x && yVal === y)) {
+          // it is not the center game square and xVal and yVal are in bounds
+          const newSquareCoOrds = coOrdKey(xVal, yVal);
+          const square = upcomingGame.get(newSquareCoOrds);
+          if (!square) {
+            // return out of this instance if square is not defined
+            return;
+          }
+          if (type === AdjacentUpdate.mimes) {
+            // Update number of Adjacent mimes (only update if the square is not a mime)
+            if (!square.mime) {
+              square.adjacentMimes += 1;
+              upcomingGame.set(newSquareCoOrds, square);
+            }
+          }
+          if (!square.flagged && !square.opened) {
+            // if the square exists, it is not flagged, and it is not already opened
+            if (type === AdjacentUpdate.open && !square.mime) {
+              // Open Adjacent Squares recursively (do not open flagged squares)
+              square.opened = true;
+              count += 1;
+              if (square.adjacentMimes === 0) {
+                count += updateAdjacent({
+                  location: newSquareCoOrds,
+                  upcomingGame,
+                  type: AdjacentUpdate.open,
+                });
+              }
+            } else if (type === AdjacentUpdate.forceOpen) {
+              // even if there are mimes, open it up. Don't update recursively
+              square.opened = true;
+              count += 1;
+            }
+          }
+        }
+      });
+    });
+    return count;
+  }
+
+  function allAdjacentMimesAreFlagged({
+    location,
+    upcomingGame,
+  }: FlaggedAdjacentProps): boolean {
+    let flaggedAdjacent = 0;
+    let adjacentMimes = 0;
+    // return the number of flagged Adjacent squares
+    const [x, y] = getCoOrd(location);
+    Array.of(x - 1, x, x + 1).forEach((xVal) => {
+      Array.of(y - 1, y, y + 1).forEach((yVal) => {
+        if (!(xVal === x && yVal === y)) {
+          // it is not the center game square and xVal and yVal are in bounds
+          const coords = coOrdKey(xVal, yVal);
+          const square = upcomingGame.get(coords);
+          if (square?.mime) {
+            adjacentMimes += 1;
+            if (square.flagged) {
+              flaggedAdjacent += 1;
+            }
+          }
+        }
+      });
+    });
+    return flaggedAdjacent === adjacentMimes;
+  }
 
   function populateMimes(
     entries: Array<[Coordinate, GameSquare]>,
@@ -223,7 +225,7 @@ function App() {
         const square = upcomingGame.get(mimeLocation);
         if (square) {
           // Update surrounding squares' adjacentMimes
-          updateAdjacent({ location: mimeLocation, upcomingGame, boardSize });
+          updateAdjacent({ location: mimeLocation, upcomingGame });
         }
       });
     return upcomingGame;
@@ -233,8 +235,12 @@ function App() {
     if (!square.opened) {
       // this is a right click
       square.flagged = !square.flagged;
-      if (square.flagged && square.mime) {
-        setNumFlaggedMimes((prevState) => prevState + 1);
+      if (square.flagged) {
+        // take one away
+        setNumFlags((prevState) => prevState - 1);
+      } else {
+        // add one back
+        setNumFlags((prevState) => prevState + 1);
       }
     }
     return square;
@@ -251,16 +257,28 @@ function App() {
       setStatus(() => 'gameOverLost');
     } else if (!square.flagged) {
       // not right-click, not a flag, and not a mime
-      square.opened = true;
+      let count = 0;
+      if (!square.opened) {
+        // square is not already opened. open it and add 1 count
+        square.opened = true;
+        count += 1;
+      }
       if (square.adjacentMimes === 0) {
         // If there are no adjacentMimes, open all adjacent Squares
-        updateAdjacent({
+        count += updateAdjacent({
           location: coOrd,
           upcomingGame: nextStateGame,
           type: AdjacentUpdate.open,
-          boardSize,
         });
       }
+      setNumOpenSpaces((prev) => {
+        const newCount = prev + count;
+        if (numMimes + newCount === boardSize * boardSize) {
+          // only the mimes are left, you won!
+          setStatus('gameOverWon');
+        }
+        return newCount;
+      });
     }
     return nextStateGame;
   };
@@ -280,12 +298,20 @@ function App() {
         // Game over! you found a un-flagged Mime
         setStatus(() => 'gameOverLost');
       }
+      let count = 0;
       // open adjacent squares
-      updateAdjacent({
+      count += updateAdjacent({
         location: coOrd,
         upcomingGame: nextStateGame,
         type: AdjacentUpdate.forceOpen,
-        boardSize,
+      });
+      setNumOpenSpaces((prev) => {
+        const newCount = prev + count;
+        if (numMimes + newCount === boardSize * boardSize) {
+          // only the mimes are left, you won!
+          setStatus('gameOverWon');
+        }
+        return newCount;
       });
     }
     return nextStateGame;
@@ -305,10 +331,7 @@ function App() {
         square = handleRightClick(square);
       } else if (type === 'click') {
         handleSquareClick(coOrd, nextStateGame, square);
-        // TODO game is over when numMimes === numFlagged AND the positions in the mimeLocations and flagLocations
-        //  arrays are equivalent when sorted
-      }
-      if (type === 'dblclick') {
+      } else if (type === 'dblclick') {
         handleDoubleClick(coOrd, nextStateGame, square);
       }
       nextStateGame.set(coOrd, square);
@@ -345,7 +368,8 @@ function App() {
     setStatus('waitingStart');
     setBoardSize(() => size);
     setNumMimes(() => mimes);
-    setNumFlaggedMimes(() => 0);
+    setNumFlags(() => mimes);
+    setNumOpenSpaces(0);
     setPlayTime(0);
     setGame(() => newGame());
   }
@@ -415,7 +439,8 @@ function App() {
       <h4>Mimesweeper</h4>
       <h4>
         <small>
-          Play time: {playTime}s | Mimes Remaining: {numMimes - numFlaggedMimes}
+          Play time: {playTime}s | Flags Remaining:{' '}
+          {numFlags < 0 ? 'No more left!' : numFlags}
         </small>
       </h4>
       <div className="mimes" style={{ width: `${squareSide * boardSize}px` }} />

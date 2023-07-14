@@ -46,21 +46,27 @@ function Square({
 
   const [flagImg] = useImage(flagImage, undefined, 'same-origin');
   const [gameOverMime] = useImage(gameOverImage, undefined, 'same-origin');
-  const handleClick = () => {
+
+  // Handler for the left-click Mouse event
+  const handleClick = (e: KonvaEventObject<MouseEvent>) => {
     // if this square hides a mime, game over :(
-    // type = click
-    onSelect(coOrd, 'click');
+    if (e.evt.button === 0) {
+      // Only fire if this is a main button mouse click
+      onSelect(coOrd, 'click');
+    }
+    e.evt.preventDefault();
   };
 
-  const handleDblClick = () => {
-    // type = dblclick
-    // handler for a double click event
-    onDoubleClick(coOrd, 'dblclick');
+  // Handler for a double click event
+  const handleDblClick = (e: KonvaEventObject<MouseEvent>) => {
+    if (e.evt.button === 0) {
+      // Only fire if this is the main button mouse double click
+      onDoubleClick(coOrd, 'dblclick');
+    }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Handler for the right-click event
   const handleContextMenu = (e: KonvaEventObject<PointerEvent>) => {
-    // type = contextmenu
     onRightClick(coOrd, 'contextmenu');
     e.evt.preventDefault();
   };
@@ -78,6 +84,9 @@ function Square({
       newColor = gradientArray[adjacentMimes];
     }
     setColor(() => newColor);
+    return function cleanup() {
+      newColor = unopenedColor;
+    };
   }, [mime, opened, adjacentMimes]);
 
   return (
@@ -85,8 +94,8 @@ function Square({
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onDblClick={handleDblClick}
-      onTap={handleClick}
-      onDblTap={handleDblClick}
+      onTap={() => onSelect(coOrd, 'click')}
+      onDblTap={() => onDoubleClick(coOrd, 'dblclick')}
     >
       <Rect
         x={x}
