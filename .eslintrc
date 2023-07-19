@@ -6,10 +6,15 @@
     }
   },
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
   "extends": [
-    "react-app",
+//    "react-app", // disable until eslint-config-react-app updates their dependency to typescript-eslint
+    "react-app/jest",
     "airbnb",
     "airbnb-typescript",
     "plugin:jsx-a11y/recommended",
