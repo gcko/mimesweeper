@@ -1,6 +1,7 @@
 {
   "name": "mimesweeper",
   "version": "0.1.0",
+  "license": "Unlicense",
   "private": true,
   "engineStrict": true,
   "engines": {
