@@ -11,7 +11,7 @@ import 'App.scss';
 enum AdjacentUpdate {
   mimes = 'MIMES',
   open = 'OPEN',
-  forceOpen = 'FORCE_OPEN',
+  forceOpen = 'FORCE_OPEN'
 }
 
 // Number of Squares in the x & y direction of the play area
@@ -20,7 +20,7 @@ enum GridSize {
   S = 10,
   M = 20,
   L = 30,
-  XL = 40,
+  XL = 40
 }
 
 // Number of Mimes to place in a play area
@@ -29,7 +29,7 @@ enum MimeSize {
   S = 10,
   M = 25,
   L = 50,
-  XL = 100,
+  XL = 100
 }
 
 // Magic number. The amount of retries to allow for placing mimes until it will force-exit the while-loop
@@ -72,7 +72,7 @@ function getCoOrd(location: Coordinate): [number, number] {
   }
   return [
     parseInt(location.slice(0, location.indexOf('|')), 10),
-    parseInt(location.slice(location.indexOf('|') + 1), 10),
+    parseInt(location.slice(location.indexOf('|') + 1), 10)
   ];
 }
 
@@ -110,7 +110,7 @@ function App() {
   function updateAdjacent({
     location,
     upcomingGame,
-    type = AdjacentUpdate.mimes,
+    type = AdjacentUpdate.mimes
   }: AdjacentProps): number {
     let count = 0;
     const [x, y] = getCoOrd(location);
@@ -141,7 +141,7 @@ function App() {
                 count += updateAdjacent({
                   location: newSquareCoOrds,
                   upcomingGame,
-                  type: AdjacentUpdate.open,
+                  type: AdjacentUpdate.open
                 });
               }
             } else if (type === AdjacentUpdate.forceOpen) {
@@ -158,7 +158,7 @@ function App() {
 
   function allAdjacentMimesAreFlagged({
     location,
-    upcomingGame,
+    upcomingGame
   }: FlaggedAdjacentProps): boolean {
     let flaggedAdjacent = 0;
     let adjacentMimes = 0;
@@ -262,7 +262,7 @@ function App() {
         count += updateAdjacent({
           location: coOrd,
           upcomingGame: nextStateGame,
-          type: AdjacentUpdate.open,
+          type: AdjacentUpdate.open
         });
       }
       setNumOpenSpaces((prev) => {
@@ -286,7 +286,7 @@ function App() {
       if (
         !allAdjacentMimesAreFlagged({
           location: coOrd,
-          upcomingGame: nextStateGame,
+          upcomingGame: nextStateGame
         })
       ) {
         // Game over! you found a un-flagged Mime
@@ -297,7 +297,7 @@ function App() {
       count += updateAdjacent({
         location: coOrd,
         upcomingGame: nextStateGame,
-        type: AdjacentUpdate.forceOpen,
+        type: AdjacentUpdate.forceOpen
       });
       setNumOpenSpaces((prev) => {
         const newCount = prev + count;
@@ -336,11 +336,11 @@ function App() {
   const newGame = (size = GridSize.S): Map<Coordinate, GameSquare> => {
     // use the Grid Size to generate a new Game Map
     const entries: Array<[Coordinate, GameSquare]> = Array.from({
-      length: size,
+      length: size
     }).reduce((prevValue: Array<[Coordinate, GameSquare]>, _, xIndex) => {
       // generate 0 to gridSize - 1 for the current index and concat to prevValue
       const currentList: Array<[Coordinate, GameSquare]> = Array.from({
-        length: size,
+        length: size
       }).map((__, yIndex) => [
         coOrdKey(xIndex, yIndex),
         {
@@ -350,8 +350,8 @@ function App() {
           flagged: false,
           isGameOver: false,
           x: xIndex * squareSide,
-          y: yIndex * squareSide,
-        },
+          y: yIndex * squareSide
+        }
       ]);
       return prevValue.concat(currentList);
     }, []);
