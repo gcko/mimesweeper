@@ -1,8 +1,8 @@
 FROM node:20
 LABEL authors="jared.scott@variable.team"
 
-COPY ./ src/
+COPY ./ /src/
 
-WORKDIR src/
+WORKDIR /src/
 
 RUN npm install
