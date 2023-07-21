@@ -2,6 +2,7 @@
 This project reimplements the classic Windows game Minesweeper as "Mimesweeper".
 
 ![](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidWVmUGxlaDA5WW9INTIrcWJVTlNzdjUrNDVBc2JGTUplRW8zTVpTd3NBaS9EcURRMmsrcXVCNHBseVMxeE92VUpOV2VXNXZVdjNTQ3lsODlLbS8zbVRvPSIsIml2UGFyYW1ldGVyU3BlYyI6IkN1SkpaaXJwMFVpdHRtZk0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7f232e5661e64dbd88d552909f0d1d4f)](https://app.codacy.com/gh/gcko/mimesweeper/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 ## Rules
 The game has the following rules:
