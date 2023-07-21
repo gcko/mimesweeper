@@ -1,10 +1,13 @@
+$white: #FFF !default;
+$black: #000 !default;
+
 .container {
   min-width: 1000px;
   margin: auto;
   text-align: center;
 
   > h4 {
-    color: #FFFFFF;
+    color: $white;
   }
 
   ol li {
@@ -25,10 +28,11 @@
   }
 
   $buttonBgColor: #4b5052;
+
   button {
     background-color: $buttonBgColor;
     transition: background-color 200ms;
-    border: 2px solid #000000;
+    border: 2px solid $black;
     color: #F5F5F5FF;
     padding: 1rem 1.5rem;
     text-align: center;
@@ -51,7 +55,7 @@
   }
 
   .stage {
-    box-shadow: 0 0 5px 1px #000000;
+    box-shadow: 0 0 5px 1px $black;
     width: fit-content;
     margin: auto;
   }
@@ -66,14 +70,14 @@
     justify-content: center;
     align-items: center;
     z-index: 1;
-    background-color: rgba(0, 0, 0, 0.18);
+    background-color: rgba(0 0 0 0.18);
 
     .content {
       width: 30rem;
       height: fit-content;
-      background-color: #FFFFFF;
+      background-color: $white;
       padding: 2rem;
-      box-shadow: 0 0 1rem .2rem #000000;
+      box-shadow: 0 0 1rem .2rem $black;
 
       .buttons {
         margin-top: 1rem;
