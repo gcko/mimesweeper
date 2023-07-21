@@ -5,7 +5,7 @@
   "private": true,
   "engineStrict": true,
   "engines": {
-    "node": ">= 20"
+    "node": ">= 18"
   },
   "dependencies": {
     "javascript-color-gradient": "^2.4.4",
