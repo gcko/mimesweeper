@@ -14,8 +14,8 @@ phases:
       - npm run build
   post_build:
     commands:
-      - aws s3 cp --recursive --acl public-read ./dist s3://mimesweeper.variable.team
-      - aws s3 cp --acl public-read --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./dist/index.html s3://mimesweeper.variable.team/
+      - aws s3 cp --recursive ./dist s3://mimesweeper.variable.team/
+      - aws s3 cp --cache-control="max-age=0, no-cache, no-store, must-revalidate" ./dist/index.html s3://mimesweeper.variable.team/
       - aws cloudfront create-invalidation --distribution-id E18SWP6XMGAWB0 --paths /index.html
 #  artifacts:
 #    files:
