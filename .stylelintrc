@@ -1,5 +1,4 @@
 {
-  "ignoreFiles": ["**/*"],
   "overrides": [
     {
       "files": ["**/*.scss"],
@@ -30,7 +29,7 @@
         "selector-pseudo-element-no-unknown": [true, {
           "ignorePseudoElements": ["ng-deep"]
         }],
-        "unit-allowed-list": ["rem", "px", "fr", "%", "vh", "vw", "s", "deg"]
+        "unit-allowed-list": ["rem", "px", "fr", "%", "vh", "vw", "s", "deg", "ms"]
       }
     }
   ]
