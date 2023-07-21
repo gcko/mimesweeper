@@ -40,7 +40,7 @@ function Square({
   opened,
   flagged,
   isGameOver,
-  adjacentMimes,
+  adjacentMimes
 }: SquareProps & GameSquare) {
   const [color, setColor] = useState(unopenedColor);
 

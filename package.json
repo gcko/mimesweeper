@@ -13,8 +13,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.10",
-    "react-scripts": "5.0.1",
-    "sass": "^1.63.6",
+    "sass": "^1.64.0",
     "typescript": "^5.1.6",
     "web-vitals": "^3.4.0"
   },
@@ -28,35 +27,37 @@
     "@types/node": "^20.4.2",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
+    "@vitejs/plugin-react": "^4.0.3",
     "eslint": "^8.45.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-typescript": "^3.5.5",
+    "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.33.0",
     "jest-canvas-mock": "^2.5.2",
-    "stylelint": "^15.10.1",
+    "stylelint": "^15.10.2",
     "stylelint-config-idiomatic-order": "^9.0.0",
     "stylelint-config-standard-scss": "^10.0.0",
     "ts-jest": "^29.1.1",
-    "use-image": "^1.1.1"
-  },
-  "overrides": {
-    "react-scripts": {
-      "typescript": "^5"
-    }
+    "use-image": "^1.1.1",
+    "vite": "^4.4.6",
+    "vite-plugin-checker": "^0.6.1",
+    "vite-tsconfig-paths": "^4.2.0"
   },
   "scripts": {
-    "start": "HOST=0.0.0.0 react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "lint": "eslint \"**/*.{ts,tsx}\"",
-    "lint:fix": "eslint \"**/*.{ts,tsx}\" --fix",
-    "eject": "react-scripts eject"
+    "start": "vite --host=0.0.0.0",
+    "build": "tsc && vite build --mode=production",
+    "serve": "vite preview",
+    "test": "echo \"TODO: configure\"",
+    "lint": "eslint \"**/*.{ts,tsx,html}\"",
+    "lint:fix": "eslint \"**/*.{ts,tsx,html}\" --fix"
   },
   "jest": {
     "transform": {
