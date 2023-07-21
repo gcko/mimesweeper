@@ -1,6 +1,8 @@
 # "Mimesweeper" - an interpretation of Minesweeper
 This project reimplements the classic Windows game Minesweeper as "Mimesweeper".
 
+![](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoidWVmUGxlaDA5WW9INTIrcWJVTlNzdjUrNDVBc2JGTUplRW8zTVpTd3NBaS9EcURRMmsrcXVCNHBseVMxeE92VUpOV2VXNXZVdjNTQ3lsODlLbS8zbVRvPSIsIml2UGFyYW1ldGVyU3BlYyI6IkN1SkpaaXJwMFVpdHRtZk0iLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=main)
+
 ## Rules
 The game has the following rules:
 1. Clicking a mine ends the game.
