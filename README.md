@@ -32,7 +32,7 @@ npm install
 
 ### Container Method
 This project can be spun up within Docker. Simply run:
-**NOTE:** For Apple Silicon Mac, the [platform parameters](https://stackoverflow.com/questions/65612411/forcing-docker-to-use-linux-amd64-platform-by-default-on-macos currently do not work.
+**NOTE:** For Apple Silicon Mac, the [platform parameters](https://stackoverflow.com/questions/65612411/forcing-docker-to-use-linux-amd64-platform-by-default-on-macos) currently do not work.
 
 ```shell
 docker compose up
