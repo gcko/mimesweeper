@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Group, Image, Rect, Text } from 'react-konva';
-import { Coordinate, EventType, GameSquare } from 'types';
 import Gradient from 'javascript-color-gradient';
 import useImage from 'use-image';
+import Konva from 'konva';
+import { Coordinate, EventType, GameSquare } from 'types';
 import flagImage from 'images/stop.png';
 import gameOverImage from 'images/mime_color.png';
-import Konva from 'konva';
 import KonvaEventObject = Konva.KonvaEventObject;
 
 type SquareProps = {
