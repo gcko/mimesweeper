@@ -29,6 +29,7 @@
         "consistent-return": ["off"],
         "no-param-reassign": ["error", {"ignorePropertyModificationsFor": ["consoleElement"]}],
         "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+        "import/no-unresolved": ["off"], // codacy fails on this
         "no-console": ["warn", {"allow": ["warn", "error"]}],
         "react/jsx-filename-extension": [
           1,
