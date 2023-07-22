@@ -2,15 +2,23 @@
 
 ## Reporting a Vulnerability
 
-If there are any vulnerabilities in **Mimesweeper**, don't hesitate to _report them_.
+If there are any vulnerabilities in **Mimesweeper**, don't hesitate to *report
+them*.
 
-1. Create an [Issue](https://github.com/gcko/mimesweeper/issues).
-2. Describe the vulnerability.
+1.  Create an [Issue](https://github.com/gcko/mimesweeper/issues).
 
-   If you have a fix, that is most welcome -- please create a PR or summarize it in your message!
+2.  Describe the vulnerability.
 
-3. We will evaluate the vulnerability and, if necessary, release a fix or mitigating steps to address it. We will contact you to let you know the outcome, and will credit you in the report.
+    If you have a fix, that is most welcome -- please create a PR or summarize
+    it in your message!
 
-   Please **do not disclose the vulnerability publicly** until a fix is released!
+3.  We will evaluate the vulnerability and, if necessary, release a fix or
+    mitigating steps to address it. We will contact you to let you know the
+    outcome, and will credit you in the report.
 
-4. Once we have either published a fix, or declined to address the vulnerability for whatever reason, you are free to publicly disclose it.
+    Please **do not disclose the vulnerability publicly** until a fix is
+    released!
+
+4.  Once we have either published a fix, or declined to address the
+    vulnerability
+    for whatever reason, you are free to publicly disclose it.

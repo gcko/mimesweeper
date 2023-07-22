@@ -7,3 +7,8 @@ insert_final_newline = true
 indent_style = space
 indent_size = 2
 ij_typescript_use_double_quotes = false
+
+[*.md]
+end_of_line = lf
+max_line_length = 80
+ij_markdown_force_one_space_after_list_bullet = false
