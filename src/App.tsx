@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
-import useInterval from 'useInterval';
 import { Coordinate, EventType, GameSquare, GameStatus } from 'types';
+import useInterval from './useInterval';
 import Square from './Square';
 import gameOverImage from './images/mime_color.png';
 import 'App.scss';
@@ -41,7 +41,6 @@ const squareSide = 25;
 // Additional score added based on speed of completion
 //  bonus will count down by 10 every 5 seconds after initial 10 seconds
 // 500 / 10 * 5 = 250 seconds + 10 initial seconds = 260 seconds until bonus reaches 0
-// TODO implement
 // const bonusTimeScore: number = 500;
 
 // Interval delay of the timer. Defaults to 1s (1000ms)

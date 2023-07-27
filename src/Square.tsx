@@ -4,9 +4,9 @@ import Gradient from 'javascript-color-gradient';
 import useImage from 'use-image';
 import Konva from 'konva';
 import { Coordinate, EventType, GameSquare } from 'types';
-import flagImage from 'images/stop.png';
-import gameOverImage from 'images/mime_color.png';
 import KonvaEventObject = Konva.KonvaEventObject;
+import flagImage from './images/stop.png';
+import gameOverImage from './images/mime_color.png';
 
 type SquareProps = {
   x: number;

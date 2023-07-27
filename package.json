@@ -13,7 +13,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.10",
-    "sass": "^1.64.0",
+    "sass": "^1.64.1",
     "typescript": "^5.1.6",
     "web-vitals": "^3.4.0"
   },
@@ -24,24 +24,28 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/javascript-color-gradient": "^2.4.0",
     "@types/jest": "^29.5.3",
-    "@types/node": "^20.4.2",
-    "@types/react": "^18.2.15",
+    "@types/node": "^20.4.5",
+    "@types/react": "^18.2.17",
     "@types/react-dom": "^18.2.7",
-    "@typescript-eslint/eslint-plugin": "^6.1.0",
-    "@typescript-eslint/parser": "^6.1.0",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
     "@vitejs/plugin-react": "^4.0.3",
     "eslint": "^8.45.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-prettier": "^8.9.0",
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.33.0",
+    "husky": "^8.0.0",
+    "is-ci": "^3.0.1",
+    "jest": "^29.6.2",
     "jest-canvas-mock": "^2.5.2",
+    "jest-environment-jsdom": "^29.6.2",
     "remark-cli": "^11.0.0",
     "remark-lint-list-item-indent": "^3.1.2",
     "remark-lint-list-item-spacing": "^4.1.2",
@@ -52,7 +56,7 @@
     "stylelint-config-standard-scss": "^10.0.0",
     "ts-jest": "^29.1.1",
     "use-image": "^1.1.1",
-    "vite": "^4.4.6",
+    "vite": "^4.4.7",
     "vite-plugin-checker": "^0.6.1",
     "vite-tsconfig-paths": "^4.2.0"
   },
@@ -60,49 +64,14 @@
     "start": "vite --host=0.0.0.0",
     "build": "tsc && vite build --mode=production",
     "serve": "vite preview",
-    "test": "echo \"TODO: configure\"",
+    "test": "jest",
+    "test:watch": "npm test -- --watch",
+    "test:update": "npm test -- --u",
     "lint": "eslint \"**/*.{ts,tsx,html}\"",
     "lint:fix": "eslint \"**/*.{ts,tsx,html}\" --fix",
     "lint:markdown": "remark . --quiet --frail",
-    "lint:markdown:fix": "remark . --quiet --frail --output"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/ts-jest"
-    },
-    "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts",
-      "!src/index.tsx",
-      "!src/serviceWorker.ts",
-      "!src/reportWebVitals.ts"
-    ],
-    "coveragePathIgnorePatterns": [
-      "./src/*/*.types.{ts,tsx}",
-      "./src/index.tsx",
-      "./src/serviceWorker.ts"
-    ],
-    "coverageReporters": [
-      "lcov",
-      "text-summary"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "statements": 80,
-        "branches": 80,
-        "lines": 80,
-        "functions": 80
-      }
-    },
-    "moduleNameMapper": {
-      "src/(.*)$": "<rootDir>/src/$1",
-      "canvas": "jest-canvas-mock"
-    },
-    "clearMocks": true
+    "lint:markdown:fix": "remark . --quiet --frail --output",
+    "prepare": "is-ci || husky install"
   },
   "browserslist": {
     "production": [
