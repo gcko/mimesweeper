@@ -14,7 +14,7 @@ if (msg.includes('Merge branch')) {
   process.exit(0);
 }
 const matchTest =
-	/^((#\d+|Adhoc): (Added|Removed|BugFix|Modified|Feature|Merged|Refactored|Release): (.+){15,})$/g
+	/^(((Close|Closes|Closed|Fix|Fixes|Fixed|Resolve|Resolves|Resolved)\s)?(#\d+|Adhoc): (Added|Removed|BugFix|Modified|Feature|Merged|Refactored|Release): (.+){15,})$/g
 		.test(msg);
 
 if (matchTest) {
