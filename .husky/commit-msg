@@ -17,7 +17,7 @@ const matchTest =
 	/^(((Close|Closes|Closed|Fix|Fixes|Fixed|Resolve|Resolves|Resolved)\s)?(#\d+|Adhoc): (Added|Removed|BugFix|Modified|Feature|Merged|Refactored|Release): (.+){15,})$/g
 		.test(msg);
 
-if (matchTest) {
+if (matchTest || /^Merge remote-tracking(.+)/g.test(msg)) {
 	console.log('SUCCESS: Commit ACCEPTED.');
 } else {
 	console.log('ERROR: Commit REJECTED. REASON: Your commit message: \'' + msg + '\' does not follow the commit message convention.');
