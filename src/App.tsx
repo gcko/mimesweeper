@@ -1,36 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
-import { Coordinate, EventType, GameSquare, GameStatus } from 'types';
+import {
+  AdjacentProps,
+  Coordinate,
+  EventType,
+  FlaggedAdjacentProps,
+  GameSquare,
+  GameStatus
+} from 'types.d';
+import { AdjacentUpdate, GridSize, MimeSize } from './enums.ts';
+import {
+  coOrdKey,
+  generateRandomCoOrd,
+  getCoOrd
+} from './utils/coordinates.ts';
 import useInterval from './useInterval';
 import Square from './Square';
 import gameOverImage from './images/mime_color.png';
 import 'App.scss';
-
-// Types of updates that can be made to Adjacent Squares. Options include updating
-//  adjacentMime values or opening the squares
-enum AdjacentUpdate {
-  mimes = 'MIMES',
-  open = 'OPEN',
-  forceOpen = 'FORCE_OPEN'
-}
-
-// Number of Squares in the x & y direction of the play area
-enum GridSize {
-  XS = 5,
-  S = 10,
-  M = 20,
-  L = 30,
-  XL = 40
-}
-
-// Number of Mimes to place in a play area
-enum MimeSize {
-  XS = 5,
-  S = 10,
-  M = 25,
-  L = 50,
-  XL = 100
-}
 
 // Magic number. The amount of retries to allow for placing mimes until it will force-exit the while-loop
 const INITIAL_FAILSAFE = 100;
@@ -45,49 +32,6 @@ const squareSide = 25;
 
 // Interval delay of the timer. Defaults to 1s (1000ms)
 const timeDelay: number = 1000; // 1 second
-
-// Take in an x and y position and generate the coordinate key. Example generated key: x=5, y=4, returns '5|4'
-function coOrdKey(x: number, y: number): Coordinate {
-  return `${x}|${y}`;
-}
-
-// Given the board size, generate random coordinates within the board
-function generateRandomCoOrd(boardSize: number): Coordinate {
-  // generate a random location
-  const x = Math.floor(Math.random() * boardSize);
-  const y = Math.floor(Math.random() * boardSize);
-  return coOrdKey(x, y);
-}
-
-// Given a Coordinate, return the values as an array of [x, y]
-function getCoOrd(location: Coordinate): [number, number] {
-  if (
-    Number.isNaN(parseInt(location.slice(0, location.indexOf('|')), 10)) ||
-    Number.isNaN(parseInt(location.slice(location.indexOf('|') + 1), 10))
-  ) {
-    throw new Error(
-      `Unable to correctly parse x and y coordinates from given location string: "${location}"`
-    );
-  }
-  return [
-    parseInt(location.slice(0, location.indexOf('|')), 10),
-    parseInt(location.slice(location.indexOf('|') + 1), 10)
-  ];
-}
-
-interface AdjacentProps {
-  // Coordinates of a square
-  location: Coordinate;
-  // Game that is being manipulated
-  upcomingGame: Map<Coordinate, GameSquare>;
-  // Type of update
-  type?: AdjacentUpdate;
-}
-
-interface FlaggedAdjacentProps {
-  location: Coordinate;
-  upcomingGame: Map<Coordinate, GameSquare>;
-}
 
 function App() {
   // Handle state for the game

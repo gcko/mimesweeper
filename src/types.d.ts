@@ -1,4 +1,6 @@
 // Interface describing the structure of a Square within a Game Grid.
+import { AdjacentUpdate } from 'enums';
+
 export interface GameSquare {
   // Does this square contain a mime?
   mime: boolean;
@@ -26,3 +28,17 @@ export type GameStatus =
   | 'inProgress'
   | 'gameOverLost'
   | 'gameOverWon';
+
+export interface AdjacentProps {
+  // Coordinates of a square
+  location: Coordinate;
+  // Game that is being manipulated
+  upcomingGame: Map<Coordinate, GameSquare>;
+  // Type of update
+  type?: AdjacentUpdate;
+}
+
+export interface FlaggedAdjacentProps {
+  location: Coordinate;
+  upcomingGame: Map<Coordinate, GameSquare>;
+}
