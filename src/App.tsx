@@ -17,7 +17,7 @@ import {
 import useInterval from './useInterval';
 import Square from './Square';
 import gameOverImage from './images/mime_color.png';
-import 'App.scss';
+import 'App.css';
 
 // Magic number. The amount of retries to allow for placing mimes until it will force-exit the while-loop
 const INITIAL_FAILSAFE = 100;
@@ -40,7 +40,8 @@ function App() {
   const [status, setStatus] = useState<GameStatus>('waitingStart');
   const [numMimes, setNumMimes] = useState(MimeSize.S);
   const [numFlags, setNumFlags] = useState(MimeSize.S);
-  const [, setNumOpenSpaces] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [numOpenSpaces, setNumOpenSpaces] = useState(0);
   const [playTime, setPlayTime] = useState(0);
   const [showRules, setShowRules] = useState(false);
 

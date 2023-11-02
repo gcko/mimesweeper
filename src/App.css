@@ -1,0 +1,86 @@
+:root {
+  --white: #FFF;
+  --black: #000;
+  --button-bg-color: #4b5052; 
+}
+
+.container {
+  min-width: 1000px;
+  margin: auto;
+  text-align: center;
+}
+
+.container > h4 {
+  color: var(--white);
+}
+
+.container ol li + li {
+  margin-top: .5rem;
+}
+
+.container .mimes {
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  height: 4rem;
+  background-image: url("images/mime_bw.png");
+  background-repeat: repeat-x;
+  background-size: 4rem;
+  filter: invert(100%);
+}
+
+.container button {
+  background-color: var(--button-bg-color);
+  transition: background-color 200ms;
+  border: 2px solid var(--black);
+  color: #F5F5F5FF;
+  padding: 1rem 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1rem;
+  display: inline-block;
+  font-family: 'Press Start 2P', cursive;
+
+  & + button {
+    margin: .5rem;
+  }
+
+  &:hover, &:focus {
+    background-color: color-mix(in srgb, var(--button-bg-color) 80%, var(--white));
+  }
+
+  &:active {
+    background-color: color-mix(in srgb, var(--button-bg-color) 60%, var(--white));
+  }
+}
+
+.container .stage {
+  box-shadow: 0 0 5px 1px var(--black);
+  width: fit-content;
+  margin: auto;
+}
+
+.container .overlay {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  background-color: rgb(0 0 0 / 18%);
+}
+
+.container .overlay .content {
+  width: 30rem;
+  height: fit-content;
+  background-color: var(--white);
+  padding: 2rem;
+  box-shadow: 0 0 1rem .2rem var(--black);
+}
+
+.container .overlay .content .buttons {
+  margin-top: 1rem;
+}
