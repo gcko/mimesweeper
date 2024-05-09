@@ -1,6 +1,6 @@
 const fs = require('fs');
 console.log('INFO: Validating git commit message.......');
-console.log(process.argv)
+
 const msg = fs.readFileSync(process.argv[2] || process.env.GIT_PARAMS ||
   process.env.HUSKY_GIT_PARAMS, 'utf8').replace(/\n/g, " ").substring(0, 50);
 if (msg.includes('Merge branch')) {
