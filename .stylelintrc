@@ -6,9 +6,6 @@
       "rules": {
         "block-no-empty": true,
         "color-no-invalid-hex": true,
-        "max-nesting-depth": 4,
-        "max-empty-lines": 2,
-        "selector-max-compound-selectors": 5,
         "selector-max-id": 1,
         "selector-no-qualifying-type": [
           true,

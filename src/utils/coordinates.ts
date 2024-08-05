@@ -2,7 +2,7 @@
 import { Coordinate } from 'types';
 
 export function coOrdKey(x: number, y: number): Coordinate {
-  return `${x}|${y}`;
+  return `${String(x)}|${String(y)}`;
 }
 
 // Given the board size, generate random coordinates within the board

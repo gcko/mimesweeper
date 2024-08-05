@@ -22,8 +22,12 @@ export default function useInterval(
       return;
     }
 
-    const id = setInterval(() => savedCallback.current(), delay);
+    const id = setInterval(() => {
+      savedCallback.current();
+    }, delay);
 
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+    };
   }, [delay]);
 }

@@ -19,7 +19,7 @@ export interface GameSquare {
 }
 
 // Takes an x and y position and generates a coordinate. Example generated key: x=5, y=4, returns '5|4'
-export type Coordinate = `${number}|${number}`;
+export type Coordinate = `${string}|${string}`;
 
 export type EventType = 'click' | 'dblclick' | 'contextmenu';
 

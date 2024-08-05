@@ -8,7 +8,7 @@ import KonvaEventObject = Konva.KonvaEventObject;
 import flagImage from './images/stop.png';
 import gameOverImage from './images/mime_color.png';
 
-type SquareProps = {
+interface SquareProps {
   x: number;
   y: number;
   size: number;
@@ -16,7 +16,7 @@ type SquareProps = {
   onSelect: (coOrd: Coordinate, type: EventType) => void;
   onRightClick: (coOrd: Coordinate, type: EventType) => void;
   onDoubleClick: (coOrd: Coordinate, type: EventType) => void;
-};
+}
 
 // Capture all the colors and magic number settings in Square
 const unopenedColor = '#FFFFFF';
@@ -94,8 +94,12 @@ function Square({
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onDblClick={handleDblClick}
-      onTap={() => onSelect(coOrd, 'click')}
-      onDblTap={() => onDoubleClick(coOrd, 'dblclick')}
+      onTap={() => {
+        onSelect(coOrd, 'click');
+      }}
+      onDblTap={() => {
+        onDoubleClick(coOrd, 'dblclick');
+      }}
     >
       <Rect
         x={x}
@@ -122,7 +126,7 @@ function Square({
           height={size}
           padding={textPadding}
           align="center"
-          text={opened ? `${adjacentMimes}` : ``}
+          text={opened ? String(adjacentMimes) : ``}
           fontFamily="Press Start 2P"
         />
       )}

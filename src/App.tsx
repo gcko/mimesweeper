@@ -31,7 +31,7 @@ const squareSide = 25;
 // const bonusTimeScore: number = 500;
 
 // Interval delay of the timer. Defaults to 1s (1000ms)
-const timeDelay: number = 1000; // 1 second
+const timeDelay = 1000; // 1 second
 
 function App() {
   // Handle state for the game
@@ -39,7 +39,7 @@ function App() {
   const [boardSize, setBoardSize] = useState(GridSize.S);
   const [status, setStatus] = useState<GameStatus>('waitingStart');
   const [numMimes, setNumMimes] = useState(MimeSize.S);
-  const [numFlags, setNumFlags] = useState(MimeSize.S);
+  const [numFlags, setNumFlags] = useState<number>(MimeSize.S);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [numOpenSpaces, setNumOpenSpaces] = useState(0);
   const [playTime, setPlayTime] = useState(0);
@@ -127,7 +127,7 @@ function App() {
   }
 
   function populateMimes(
-    entries: Array<[Coordinate, GameSquare]>,
+    entries: [Coordinate, GameSquare][],
     currentPieceCoOrds: Coordinate = '-1|-1'
   ): Map<Coordinate, GameSquare> {
     // reset mimeLocations as this is setting up a new Game
@@ -269,7 +269,8 @@ function App() {
         square = handleRightClick(square);
       } else if (type === 'click') {
         handleSquareClick(coOrd, nextStateGame, square);
-      } else if (type === 'dblclick') {
+      } else {
+        // type === 'dblclick'
         handleDoubleClick(coOrd, nextStateGame, square);
       }
       nextStateGame.set(coOrd, square);
@@ -279,11 +280,11 @@ function App() {
 
   const newGame = (size = GridSize.S): Map<Coordinate, GameSquare> => {
     // use the Grid Size to generate a new Game Map
-    const entries: Array<[Coordinate, GameSquare]> = Array.from({
+    const entries: [Coordinate, GameSquare][] = Array.from({
       length: size
-    }).reduce((prevValue: Array<[Coordinate, GameSquare]>, _, xIndex) => {
+    }).reduce((prevValue: [Coordinate, GameSquare][], _, xIndex) => {
       // generate 0 to gridSize - 1 for the current index and concat to prevValue
-      const currentList: Array<[Coordinate, GameSquare]> = Array.from({
+      const currentList: [Coordinate, GameSquare][] = Array.from({
         length: size
       }).map((__, yIndex) => [
         coOrdKey(xIndex, yIndex),
@@ -327,7 +328,7 @@ function App() {
   return (
     <div
       className="container"
-      style={{ minWidth: `${squareSide * boardSize}px` }}
+      style={{ minWidth: `${String(squareSide * boardSize)}px` }}
     >
       {showRules ? (
         <div className="overlay">
@@ -339,7 +340,12 @@ function App() {
               <li>Double click to open all adjacent un-flagged spaces</li>
             </ol>
             <div className="buttons">
-              <button type="button" onClick={() => setShowRules(false)}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRules(false);
+                }}
+              >
                 Let&apos;s play!
               </button>
             </div>
@@ -363,25 +369,33 @@ function App() {
             <div className="buttons">
               <button
                 type="button"
-                onClick={() => restart(MimeSize.S, GridSize.S)}
+                onClick={() => {
+                  restart(MimeSize.S, GridSize.S);
+                }}
               >
                 Small game
               </button>
               <button
                 type="button"
-                onClick={() => restart(MimeSize.M, GridSize.M)}
+                onClick={() => {
+                  restart(MimeSize.M, GridSize.M);
+                }}
               >
                 Medium game
               </button>
               <button
                 type="button"
-                onClick={() => restart(MimeSize.L, GridSize.L)}
+                onClick={() => {
+                  restart(MimeSize.L, GridSize.L);
+                }}
               >
                 Large game
               </button>
               <button
                 type="button"
-                onClick={() => restart(MimeSize.XL, GridSize.XL)}
+                onClick={() => {
+                  restart(MimeSize.XL, GridSize.XL);
+                }}
               >
                 XL game
               </button>
@@ -393,7 +407,12 @@ function App() {
       )}
       <h4>
         Mimesweeper{' '}
-        <button type="button" onClick={() => setShowRules(true)}>
+        <button
+          type="button"
+          onClick={() => {
+            setShowRules(true);
+          }}
+        >
           How to play
         </button>
       </h4>
@@ -403,7 +422,10 @@ function App() {
           {numFlags < 0 ? 'No more left!' : numFlags}
         </small>
       </h4>
-      <div className="mimes" style={{ width: `${squareSide * boardSize}px` }} />
+      <div
+        className="mimes"
+        style={{ width: `${String(squareSide * boardSize)}px` }}
+      />
       <Stage
         width={squareSide * boardSize}
         height={squareSide * boardSize}
@@ -433,16 +455,36 @@ function App() {
       </Stage>
       <p style={{ marginTop: '1rem' }}>Restart?</p>
       <div className="buttons">
-        <button type="button" onClick={() => restart(MimeSize.S, GridSize.S)}>
+        <button
+          type="button"
+          onClick={() => {
+            restart(MimeSize.S, GridSize.S);
+          }}
+        >
           Small game
         </button>
-        <button type="button" onClick={() => restart(MimeSize.M, GridSize.M)}>
+        <button
+          type="button"
+          onClick={() => {
+            restart(MimeSize.M, GridSize.M);
+          }}
+        >
           Medium game
         </button>
-        <button type="button" onClick={() => restart(MimeSize.L, GridSize.L)}>
+        <button
+          type="button"
+          onClick={() => {
+            restart(MimeSize.L, GridSize.L);
+          }}
+        >
           Large game
         </button>
-        <button type="button" onClick={() => restart(MimeSize.XL, GridSize.XL)}>
+        <button
+          type="button"
+          onClick={() => {
+            restart(MimeSize.XL, GridSize.XL);
+          }}
+        >
           XL game
         </button>
       </div>
