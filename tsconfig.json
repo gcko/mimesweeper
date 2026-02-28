@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "src",
     "allowJs": true,
     "skipLibCheck": true,
@@ -23,7 +19,5 @@
     "types": ["vite/client"],
     "allowImportingTsExtensions": true
   },
-  "include": [
-    "src", "index.html", "vite.config.ts"
-  ]
+  "include": ["src", "index.html", "vite.config.ts"]
 }

@@ -1,7 +1,7 @@
 :root {
-  --white: #FFF;
+  --white: #fff;
   --black: #000;
-  --button-bg-color: #4b5052; 
+  --button-bg-color: #4b5052;
 }
 
 .container {
@@ -15,7 +15,7 @@
 }
 
 .container ol li + li {
-  margin-top: .5rem;
+  margin-top: 0.5rem;
 }
 
 .container .mimes {
@@ -33,24 +33,33 @@
   background-color: var(--button-bg-color);
   transition: background-color 200ms;
   border: 2px solid var(--black);
-  color: #F5F5F5FF;
+  color: #f5f5f5ff;
   padding: 1rem 1.5rem;
   text-align: center;
   text-decoration: none;
   font-size: 1rem;
   display: inline-block;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
 
   & + button {
-    margin: .5rem;
+    margin: 0.5rem;
   }
 
-  &:hover, &:focus {
-    background-color: color-mix(in srgb, var(--button-bg-color) 80%, var(--white));
+  &:hover,
+  &:focus {
+    background-color: color-mix(
+      in srgb,
+      var(--button-bg-color) 80%,
+      var(--white)
+    );
   }
 
   &:active {
-    background-color: color-mix(in srgb, var(--button-bg-color) 60%, var(--white));
+    background-color: color-mix(
+      in srgb,
+      var(--button-bg-color) 60%,
+      var(--white)
+    );
   }
 }
 
@@ -78,7 +87,7 @@
   height: fit-content;
   background-color: var(--white);
   padding: 2rem;
-  box-shadow: 0 0 1rem .2rem var(--black);
+  box-shadow: 0 0 1rem 0.2rem var(--black);
 }
 
 .container .overlay .content .buttons {

@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Group, Image, Rect, Text } from 'react-konva';
 import Gradient from 'javascript-color-gradient';
-import useImage from 'use-image';
 import Konva from 'konva';
-import { Coordinate, EventType, GameSquare } from 'types';
+import { useEffect, useState } from 'react';
+import { Group, Image, Rect, Text } from 'react-konva';
+import type { Coordinate, EventType, GameSquare } from 'types';
+import useImage from 'use-image';
+
 import KonvaEventObject = Konva.KonvaEventObject;
-import flagImage from './images/stop.png';
+
 import gameOverImage from './images/mime_color.png';
+import flagImage from './images/stop.png';
 
 interface SquareProps {
   x: number;
@@ -87,7 +89,7 @@ function Square({
     return function cleanup() {
       newColor = unopenedColor;
     };
-  }, [mime, opened, adjacentMimes]);
+  }, [mime, opened, adjacentMimes, gradientArray]);
 
   return (
     <Group
@@ -101,8 +103,18 @@ function Square({
         onDoubleClick(coOrd, 'dblclick');
       }}
     >
-      <Rect x={x} y={y} width={size} height={size} fill={color} shadowBlur={shadowBlurSize} shadowColor={shadowColor} />
-      {flagged && flagImg && <Image image={flagImg} height={size} width={size} x={x} y={y} />}
+      <Rect
+        x={x}
+        y={y}
+        width={size}
+        height={size}
+        fill={color}
+        shadowBlur={shadowBlurSize}
+        shadowColor={shadowColor}
+      />
+      {flagged && flagImg && (
+        <Image image={flagImg} height={size} width={size} x={x} y={y} />
+      )}
       {opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (

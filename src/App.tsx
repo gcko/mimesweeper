@@ -1,11 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Layer, Stage } from 'react-konva';
-import { AdjacentProps, Coordinate, EventType, FlaggedAdjacentProps, GameSquare, GameStatus } from 'types.d';
+import type {
+  AdjacentProps,
+  Coordinate,
+  EventType,
+  FlaggedAdjacentProps,
+  GameSquare,
+  GameStatus
+} from 'types.d';
 import { AdjacentUpdate, GridSize, MimeSize } from './enums.ts';
-import { coOrdKey, generateRandomCoOrd, getCoOrd } from './utils/coordinates.ts';
-import useInterval from './useInterval';
-import Square from './Square';
 import gameOverImage from './images/mime_color.png';
+import Square from './Square';
+import useInterval from './useInterval';
+import {
+  coOrdKey,
+  generateRandomCoOrd,
+  getCoOrd
+} from './utils/coordinates.ts';
 import 'App.css';
 
 // Magic number. The amount of retries to allow for placing mimes until it will force-exit the while-loop
@@ -29,7 +40,7 @@ function App() {
   const [status, setStatus] = useState<GameStatus>('waitingStart');
   const [numMimes, setNumMimes] = useState(MimeSize.S);
   const [numFlags, setNumFlags] = useState<number>(MimeSize.S);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // biome-ignore lint/correctness/noUnusedVariables: state setter used internally
   const [numOpenSpaces, setNumOpenSpaces] = useState(0);
   const [playTime, setPlayTime] = useState(0);
   const [showRules, setShowRules] = useState(false);
@@ -40,7 +51,11 @@ function App() {
    * @param {AdjacentProps} number
    * @return {number} number of squares that were opened
    */
-  function updateAdjacent({ location, upcomingGame, type = AdjacentUpdate.mimes }: AdjacentProps): number {
+  function updateAdjacent({
+    location,
+    upcomingGame,
+    type = AdjacentUpdate.mimes
+  }: AdjacentProps): number {
     let count = 0;
     const [x, y] = getCoOrd(location);
     Array.of(x - 1, x, x + 1).forEach((xVal) => {
@@ -86,7 +101,10 @@ function App() {
   }
 
   /** Checks whether all adjacent mines around a square are flagged. */
-  function allAdjacentMimesAreFlagged({ location, upcomingGame }: FlaggedAdjacentProps): boolean {
+  function allAdjacentMimesAreFlagged({
+    location,
+    upcomingGame
+  }: FlaggedAdjacentProps): boolean {
     let flaggedAdjacent = 0;
     let adjacentMimes = 0;
     // return the number of flagged Adjacent squares
@@ -302,6 +320,7 @@ function App() {
     status === 'inProgress' ? timeDelay : null
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: newGame is stable per boardSize
   useEffect(() => {
     if (status === 'waitingStart') {
       setGame(() => newGame(boardSize));
@@ -309,7 +328,10 @@ function App() {
   }, [status, boardSize]);
 
   return (
-    <div className="container" style={{ minWidth: `${String(squareSide * boardSize)}px` }}>
+    <div
+      className="container"
+      style={{ minWidth: `${String(squareSide * boardSize)}px` }}
+    >
       {showRules ? (
         <div className="overlay">
           <div className="content">
@@ -337,8 +359,14 @@ function App() {
       {['gameOverLost', 'gameOverWon'].includes(status) ? (
         <div className="overlay">
           <div className="content">
-            <h4>GAME OVER! You {status === 'gameOverLost' ? 'Lost :(' : 'Won! :)'}</h4>
-            <img alt="Game Over!" src={gameOverImage} style={{ width: '8rem' }} />
+            <h4>
+              GAME OVER! You {status === 'gameOverLost' ? 'Lost :(' : 'Won! :)'}
+            </h4>
+            <img
+              alt="Game Over!"
+              src={gameOverImage}
+              style={{ width: '8rem' }}
+            />
             <p>New Game?</p>
             <div className="buttons">
               <button
@@ -392,13 +420,21 @@ function App() {
       </h4>
       <h4>
         <small>
-          Play time: {playTime}s | Flags Remaining: {numFlags < 0 ? 'No more left!' : numFlags}
+          Play time: {playTime}s | Flags Remaining:{' '}
+          {numFlags < 0 ? 'No more left!' : numFlags}
         </small>
       </h4>
-      <div className="mimes" style={{ width: `${String(squareSide * boardSize)}px` }} />
-      <Stage width={squareSide * boardSize} height={squareSide * boardSize} className="stage" data-test-id="stage">
+      <div
+        className="mimes"
+        style={{ width: `${String(squareSide * boardSize)}px` }}
+      />
+      <Stage
+        width={squareSide * boardSize}
+        height={squareSide * boardSize}
+        className="stage"
+        data-test-id="stage"
+      >
         <Layer>
-          {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
           {Array.from(game ? game.entries() : []).map(([key, square]) => (
             <Square
               key={key}

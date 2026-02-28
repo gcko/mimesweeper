@@ -9,7 +9,7 @@ module.exports = {
     ]
   },
   transformIgnorePatterns: [
-    '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$',
+    '[/\\\\]node_modules[/\\\\](?!(konva|react-konva)[/\\\\]).+\\.(js|jsx|ts|tsx)$',
     '^.+\\.module\\.(css|sass|scss)$'
   ],
   collectCoverageFrom: [
@@ -37,11 +37,12 @@ module.exports = {
     'src/(.*)$': '<rootDir>/src/$1',
     canvas: 'jest-canvas-mock',
     '\\.(jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
-      '<rootDir>/mocks/fileMock.js',
-    '\\.(css|sass|scss)$': '<rootDir>/mocks/fileMock.js'
+      '<rootDir>/mocks/fileMock.cjs',
+    '\\.(css|sass|scss)$': '<rootDir>/mocks/fileMock.cjs'
   },
   moduleFileExtensions: ['ts', 'tsx', 'js'],
-  setupFilesAfterEnv: ['./jest-setup.js'],
+  setupFiles: ['jest-canvas-mock'],
+  setupFilesAfterEnv: ['./jest-setup.cjs'],
   testEnvironment: 'jsdom',
   clearMocks: true
 };
