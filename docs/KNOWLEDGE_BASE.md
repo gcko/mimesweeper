@@ -10,7 +10,7 @@ No routing.
 ## Development
 
 Setup, scripts, Docker, code quality tools (Biome,
-Stylelint, Remark), and testing with Jest.
+Stylelint, Remark), and testing with Vitest.
 -> docs/development.md
 
 ## Styling

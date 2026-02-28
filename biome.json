@@ -74,6 +74,14 @@
   },
   "overrides": [
     {
+      "includes": ["vitest-setup.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": { "noEmptyBlockStatements": "off" }
+        }
+      }
+    },
+    {
       "includes": ["*.ts", "*.tsx", "*.mts", "*.cts"],
       "linter": {
         "rules": {

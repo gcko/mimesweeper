@@ -14,7 +14,7 @@ AWS CodeBuild to S3 + CloudFront.
 - **Rendering**: Konva 10 + react-konva 19
 - **Build Tool**: Vite 6
 - **Styling**: Sass, CSS custom properties, nesting
-- **Testing**: Jest 29, @testing-library/react 16
+- **Testing**: Vitest 4, @testing-library/react 16, happy-dom
 - **Linter/Formatter**: Biome
 - **Package Manager**: pnpm (via corepack)
 - **Runtime**: Node.js ^22 || ^24
@@ -26,8 +26,8 @@ pnpm install           # Install dependencies
 pnpm start             # Dev server at localhost:3000
 pnpm run build         # TypeScript check + Vite build
 pnpm run serve         # Preview production build
-pnpm test              # Run Jest test suite
-pnpm run test:watch    # Jest in watch mode
+pnpm test              # Run Vitest test suite
+pnpm run test:watch    # Vitest in watch mode
 pnpm run lint          # Biome check on TS/TSX files
 pnpm run lint:fix      # Biome auto-fix
 pnpm run format        # Biome format
@@ -49,7 +49,8 @@ docker compose up      # Dev via Docker
 | `src/App.css` | Game styling |
 | `src/images/` | Game assets |
 | `public/` | Static assets |
-| `mocks/` | Jest file mocks |
+| `vitest-setup.ts` | Vitest setup (canvas mock) |
+| `vitest.config.ts` | Vitest configuration |
 | `.husky/` | Git hooks |
 | `buildspec.yml` | AWS CodeBuild config |
 
@@ -90,7 +91,7 @@ docker compose up      # Dev via Docker
 
 **Pre-commit** (`.husky/pre-commit`):
 
-- Runs `pnpm test` (full Jest suite)
+- Runs `pnpm test` (full Vitest suite)
 - Runs `pnpm run lint` (Biome)
 - Runs `pnpm run lint:markdown` (remark validation)
 
@@ -147,10 +148,10 @@ There is no `master` branch.
 
 ## Common Pitfalls
 
-- **Canvas mocking**: Jest requires `jest-canvas-mock`
-  for Konva tests. Configured in `jest.config.cjs`.
-- **Image imports**: Static assets are mocked in tests
-  via `mocks/fileMock.cjs`.
+- **Canvas mocking**: Vitest uses a manual canvas 2D
+  context mock in `vitest-setup.ts` for Konva tests.
+- **Image imports**: Vitest handles static assets
+  natively via Vite's module resolution.
 - **Coordinate type**: Template literal type
   `${string}|${string}`. Use `coOrdKey(x, y)` to
   generate, `getCoOrd(location)` to parse.
