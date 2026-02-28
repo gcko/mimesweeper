@@ -4,9 +4,10 @@
   "license": "Unlicense",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
   "engineStrict": true,
   "engines": {
-    "node": ">= 20"
+    "node": "^22 || ^24"
   },
   "dependencies": {
     "javascript-color-gradient": "^2.5.0",
@@ -37,6 +38,7 @@
     "remark-cli": "^12.0.1",
     "remark-lint-list-item-indent": "^4.0.0",
     "remark-lint-list-item-spacing": "^5.0.0",
+    "remark-lint-no-file-name-irregular-characters": "^3.0.1",
     "remark-lint-ordered-list-marker-value": "^4.0.0",
     "remark-preset-lint-markdown-style-guide": "^6.0.0",
     "stylelint": "^16.17.0",
@@ -52,8 +54,8 @@
     "build": "tsc && vite build --mode=production",
     "serve": "vite preview",
     "test": "jest",
-    "test:watch": "npm test -- --watch",
-    "test:update": "npm test -- --u",
+    "test:watch": "pnpm test -- --watch",
+    "test:update": "pnpm test -- --u",
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
@@ -70,7 +72,7 @@
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
-      "last 1 safari version"
+      "last 1 safari version, not dead"
     ]
   }
 }

@@ -9,28 +9,30 @@ AWS CodeBuild to S3 + CloudFront.
 
 ## Tech Stack
 
-- **Framework**: React 18.3.1 (functional components, hooks)
-- **Language**: TypeScript 5.5.4 (strict mode)
-- **Rendering**: Konva 9.3.14 + react-konva 18.2.10
-- **Build Tool**: Vite 5.3.5
-- **Styling**: Sass 1.77.8, CSS custom properties, nesting
-- **Testing**: Jest 29.7.0, @testing-library/react 16.0.0
-- **Package Manager**: npm
-- **Runtime**: Node.js >= 20
+- **Framework**: React 19 (functional components, hooks)
+- **Language**: TypeScript 5.8 (strict mode)
+- **Rendering**: Konva 10 + react-konva 19
+- **Build Tool**: Vite 6
+- **Styling**: Sass, CSS custom properties, nesting
+- **Testing**: Jest 29, @testing-library/react 16
+- **Linter/Formatter**: Biome
+- **Package Manager**: pnpm (via corepack)
+- **Runtime**: Node.js ^22 || ^24
 
 ## Essential Commands
 
 ```bash
-npm install           # Install dependencies
-npm start             # Dev server at localhost:3000
-npm run build         # TypeScript check + Vite build
-npm run serve         # Preview production build
-npm test              # Run Jest test suite
-npm run test:watch    # Jest in watch mode
-npm run lint          # ESLint on TS/TSX/HTML files
-npm run lint:fix      # ESLint auto-fix
-npm run lint:markdown # Remark markdown validation
-docker compose up     # Dev via Docker
+pnpm install           # Install dependencies
+pnpm start             # Dev server at localhost:3000
+pnpm run build         # TypeScript check + Vite build
+pnpm run serve         # Preview production build
+pnpm test              # Run Jest test suite
+pnpm run test:watch    # Jest in watch mode
+pnpm run lint          # Biome check on TS/TSX files
+pnpm run lint:fix      # Biome auto-fix
+pnpm run format        # Biome format
+pnpm run lint:markdown # Remark markdown validation
+docker compose up      # Dev via Docker
 ```
 
 ## Repository Layout
@@ -88,9 +90,9 @@ docker compose up     # Dev via Docker
 
 **Pre-commit** (`.husky/pre-commit`):
 
-- Runs `npm test` (full Jest suite)
-- Runs `npm run lint` (ESLint)
-- Runs `npm run lint:markdown` (remark validation)
+- Runs `pnpm test` (full Jest suite)
+- Runs `pnpm run lint` (Biome)
+- Runs `pnpm run lint:markdown` (remark validation)
 
 **Commit-msg** (`.husky/commit-msg.cjs`):
 
@@ -133,30 +135,30 @@ There is no `master` branch.
 **GitHub Actions** (`.github/workflows/node.js.yml`):
 
 - Triggers: push to main, PRs to main
-- Matrix: Node 20.x and 22.x
-- Steps: `npm ci`, `npm test`, `npm run lint`,
-  `npm run lint:markdown`
+- Matrix: Node 22.x and 24.x
+- Steps: `pnpm install --frozen-lockfile`, `pnpm test`,
+  `pnpm run lint`, `pnpm run lint:markdown`
 
 **AWS CodeBuild** (`buildspec.yml`):
 
-- Build: `npm install` then `npm run build`
+- Build: `pnpm install` then `pnpm run build`
 - Deploy: Sync `dist/` to S3 bucket
 - Invalidate CloudFront distribution cache
 
 ## Common Pitfalls
 
 - **Canvas mocking**: Jest requires `jest-canvas-mock`
-  for Konva tests. Mapped in `jest.config.js`.
+  for Konva tests. Configured in `jest.config.cjs`.
 - **Image imports**: Static assets are mocked in tests
-  via `mocks/fileMock.js`.
+  via `mocks/fileMock.cjs`.
 - **Coordinate type**: Template literal type
   `${string}|${string}`. Use `coOrdKey(x, y)` to
   generate, `getCoOrd(location)` to parse.
-- **ESLint + Prettier**: ESLint handles both linting
-  and formatting via `eslint-plugin-prettier`.
+- **Biome**: Handles both linting and formatting
+  via `biome.json`. Replaces ESLint + Prettier.
 - **Stylelint**: Separate tool for CSS files. Allowed
   units: rem, px, fr, %, vh, vw, s, deg, ms.
-- **Vite checker**: Runs TypeScript and ESLint checks
+- **Vite checker**: Runs TypeScript and Biome checks
   in dev overlay (disabled by default).
 
 ## Additional Resources

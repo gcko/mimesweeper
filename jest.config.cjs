@@ -9,7 +9,7 @@ module.exports = {
     ]
   },
   transformIgnorePatterns: [
-    '[/\\\\]node_modules[/\\\\](?!(konva|react-konva)[/\\\\]).+\\.(js|jsx|ts|tsx)$',
+    'node_modules/(?!.*(konva|react-konva)/)',
     '^.+\\.module\\.(css|sass|scss)$'
   ],
   collectCoverageFrom: [

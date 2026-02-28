@@ -1,8 +1,12 @@
-FROM node:20
+FROM node:24
 LABEL authors="jared.scott@variable.team"
 
-COPY ./ /src/
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /src/
 
 WORKDIR /src/
 
-RUN npm install
+RUN pnpm install --frozen-lockfile
+
+COPY ./ /src/
