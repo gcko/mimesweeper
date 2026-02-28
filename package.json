@@ -7,28 +7,24 @@
   "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
   "engineStrict": true,
   "engines": {
-    "node": "^22 || ^24"
+    "node": "^22.19.0 || ^24"
   },
   "dependencies": {
     "javascript-color-gradient": "^2.5.0",
     "konva": "^10.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-konva": "^19.0.3",
-    "sass": "^1.97.3",
-    "typescript": "^5.8.3",
-    "web-vitals": "^5.0.2"
+    "react-konva": "^19.0.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
     "@types/javascript-color-gradient": "^2.4.2",
-    "@types/node": "^22.15.21",
+    "@types/node": "^25.3.2",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^4.5.2",
+    "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "^4.0.18",
     "happy-dom": "^20.7.0",
     "husky": "^9.1.7",
@@ -39,12 +35,13 @@
     "remark-lint-no-file-name-irregular-characters": "^3.0.1",
     "remark-lint-ordered-list-marker-value": "^4.0.0",
     "remark-preset-lint-markdown-style-guide": "^6.0.0",
-    "stylelint": "^16.17.0",
-    "stylelint-config-standard": "^38.0.0",
+    "stylelint": "^17.4.0",
+    "stylelint-config-standard": "^40.0.0",
+    "typescript": "^5.9.3",
     "use-image": "^1.1.4",
-    "vite": "^6.3.5",
-    "vite-plugin-checker": "^0.9.1",
-    "vite-tsconfig-paths": "^5.1.4",
+    "vite": "^7.3.1",
+    "vite-plugin-checker": "^0.12.0",
+    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.0.18"
   },
   "scripts": {
@@ -53,6 +50,7 @@
     "serve": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
