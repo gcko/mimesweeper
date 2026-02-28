@@ -85,6 +85,7 @@ function App() {
     return count;
   }
 
+  /** Checks whether all adjacent mines around a square are flagged. */
   function allAdjacentMimesAreFlagged({ location, upcomingGame }: FlaggedAdjacentProps): boolean {
     let flaggedAdjacent = 0;
     let adjacentMimes = 0;
