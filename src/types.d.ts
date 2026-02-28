@@ -1,5 +1,5 @@
 // Interface describing the structure of a Square within a Game Grid.
-import { AdjacentUpdate } from 'enums';
+import type { AdjacentUpdate } from 'enums';
 
 export interface GameSquare {
   // Does this square contain a mime?

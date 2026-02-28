@@ -1,11 +1,11 @@
 import Gradient from 'javascript-color-gradient';
-import Konva from 'konva';
+import type Konva from 'konva';
 import { useEffect, useState } from 'react';
 import { Group, Image, Rect, Text } from 'react-konva';
 import type { Coordinate, EventType, GameSquare } from 'types';
 import useImage from 'use-image';
 
-import KonvaEventObject = Konva.KonvaEventObject;
+type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
 
 import gameOverImage from './images/mime_color.png';
 import flagImage from './images/stop.png';
