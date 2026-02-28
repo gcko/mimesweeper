@@ -69,7 +69,7 @@ No Tailwind — styling is plain CSS/Sass in
 
 ## Code Quality Rules
 
-ESLint (`.eslintrc`) with strict TypeScript checking:
+ESLint (`.eslintrc.json`) with strict TypeScript checking:
 
 - `@typescript-eslint/strict-type-checked`
 - `@typescript-eslint/stylistic-type-checked`
