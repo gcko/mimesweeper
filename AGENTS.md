@@ -74,7 +74,7 @@ docker compose up      # Dev via Docker
 - Use functional React components with hooks
 - Use Konva/react-konva for canvas rendering
 - Use `Map<Coordinate, GameSquare>` for game state
-- Use double quotes, semicolons, no trailing commas
+- Use double quotes, semicolons, trailing commas
 - Use 2-space indentation
 - Use `src/` base path for imports (tsconfig baseUrl)
 - Maintain 80% test coverage threshold

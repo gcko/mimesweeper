@@ -6,7 +6,7 @@ import type {
   EventType,
   FlaggedAdjacentProps,
   GameSquare,
-  GameStatus
+  GameStatus,
 } from "types.d";
 import { AdjacentUpdate, GridSize, MimeSize } from "./enums.ts";
 import gameOverImage from "./images/mime_color.png";
@@ -15,7 +15,7 @@ import useInterval from "./useInterval";
 import {
   coOrdKey,
   generateRandomCoOrd,
-  getCoOrd
+  getCoOrd,
 } from "./utils/coordinates.ts";
 import "App.css";
 
@@ -54,7 +54,7 @@ function App() {
   function updateAdjacent({
     location,
     upcomingGame,
-    type = AdjacentUpdate.mimes
+    type = AdjacentUpdate.mimes,
   }: AdjacentProps): number {
     let count = 0;
     const [x, y] = getCoOrd(location);
@@ -85,7 +85,7 @@ function App() {
                 count += updateAdjacent({
                   location: newSquareCoOrds,
                   upcomingGame,
-                  type: AdjacentUpdate.open
+                  type: AdjacentUpdate.open,
                 });
               }
             } else if (type === AdjacentUpdate.forceOpen) {
@@ -103,7 +103,7 @@ function App() {
   /** Checks whether all adjacent mines around a square are flagged. */
   function allAdjacentMimesAreFlagged({
     location,
-    upcomingGame
+    upcomingGame,
   }: FlaggedAdjacentProps): boolean {
     let flaggedAdjacent = 0;
     let adjacentMimes = 0;
@@ -129,7 +129,7 @@ function App() {
 
   function populateMimes(
     entries: [Coordinate, GameSquare][],
-    currentPieceCoOrds: Coordinate = "-1|-1"
+    currentPieceCoOrds: Coordinate = "-1|-1",
   ): Map<Coordinate, GameSquare> {
     // reset mimeLocations as this is setting up a new Game
     const mimeLocations: Coordinate[] = [];
@@ -188,7 +188,7 @@ function App() {
   const handleSquareClick = (
     coOrd: Coordinate,
     nextStateGame: Map<Coordinate, GameSquare>,
-    square: GameSquare
+    square: GameSquare,
   ): Map<Coordinate, GameSquare> => {
     if (square.mime && !square.flagged) {
       // not right-click, not a flag, and hit a mime. Game over
@@ -207,7 +207,7 @@ function App() {
         count += updateAdjacent({
           location: coOrd,
           upcomingGame: nextStateGame,
-          type: AdjacentUpdate.open
+          type: AdjacentUpdate.open,
         });
       }
       setNumOpenSpaces((prev) => {
@@ -225,13 +225,13 @@ function App() {
   const handleDoubleClick = (
     coOrd: Coordinate,
     nextStateGame: Map<Coordinate, GameSquare>,
-    square: GameSquare
+    square: GameSquare,
   ): Map<Coordinate, GameSquare> => {
     if (square.opened && square.adjacentMimes > 0) {
       if (
         !allAdjacentMimesAreFlagged({
           location: coOrd,
-          upcomingGame: nextStateGame
+          upcomingGame: nextStateGame,
         })
       ) {
         // Game over! you found a un-flagged Mime
@@ -242,7 +242,7 @@ function App() {
       count += updateAdjacent({
         location: coOrd,
         upcomingGame: nextStateGame,
-        type: AdjacentUpdate.forceOpen
+        type: AdjacentUpdate.forceOpen,
       });
       setNumOpenSpaces((prev) => {
         const newCount = prev + count;
@@ -282,11 +282,11 @@ function App() {
   const newGame = (size = GridSize.S): Map<Coordinate, GameSquare> => {
     // use the Grid Size to generate a new Game Map
     const entries: [Coordinate, GameSquare][] = Array.from({
-      length: size
+      length: size,
     }).reduce((prevValue: [Coordinate, GameSquare][], _, xIndex) => {
       // generate 0 to gridSize - 1 for the current index and concat to prevValue
       const currentList: [Coordinate, GameSquare][] = Array.from({
-        length: size
+        length: size,
       }).map((__, yIndex) => [
         coOrdKey(xIndex, yIndex),
         {
@@ -296,8 +296,8 @@ function App() {
           flagged: false,
           isGameOver: false,
           x: xIndex * squareSide,
-          y: yIndex * squareSide
-        }
+          y: yIndex * squareSide,
+        },
       ]);
       return prevValue.concat(currentList);
     }, []);
@@ -317,7 +317,7 @@ function App() {
     () => {
       setPlayTime(playTime + 1);
     },
-    status === "inProgress" ? timeDelay : null
+    status === "inProgress" ? timeDelay : null,
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: newGame is stable per boardSize

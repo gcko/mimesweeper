@@ -5,7 +5,7 @@ const getContextOriginal = HTMLCanvasElement.prototype.getContext;
 
 HTMLCanvasElement.prototype.getContext = function (
   contextId: string,
-  options?: unknown
+  options?: unknown,
 ) {
   if (contextId === "2d") {
     return {
@@ -13,7 +13,7 @@ HTMLCanvasElement.prototype.getContext = function (
       fillRect: () => {},
       clearRect: () => {},
       getImageData: (_x: number, _y: number, w: number, h: number) => ({
-        data: new Array(w * h * 4)
+        data: new Array(w * h * 4),
       }),
       putImageData: () => {},
       createImageData: () => [],
@@ -37,10 +37,10 @@ HTMLCanvasElement.prototype.getContext = function (
       rect: () => {},
       clip: () => {},
       createLinearGradient: () => ({
-        addColorStop: () => {}
+        addColorStop: () => {},
       }),
       createRadialGradient: () => ({
-        addColorStop: () => {}
+        addColorStop: () => {},
       }),
       createPattern: () => ({}),
       strokeRect: () => {},
@@ -66,12 +66,12 @@ HTMLCanvasElement.prototype.getContext = function (
       font: "10px sans-serif",
       textAlign: "start",
       textBaseline: "alphabetic",
-      imageSmoothingEnabled: true
+      imageSmoothingEnabled: true,
     } as unknown as CanvasRenderingContext2D;
   }
   return getContextOriginal.call(
     this,
     contextId as "2d",
-    options as CanvasRenderingContext2DSettings
+    options as CanvasRenderingContext2DSettings,
   );
 };

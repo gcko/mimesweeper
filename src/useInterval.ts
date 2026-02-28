@@ -6,7 +6,7 @@ const useIsomorphicLayoutEffect =
 /** React hook that runs a callback on a recurring interval. */
 export default function useInterval(
   callback: () => void,
-  delay: number | null
+  delay: number | null,
 ) {
   const savedCallback = useRef(callback);
 

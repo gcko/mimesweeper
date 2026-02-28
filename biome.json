@@ -66,7 +66,7 @@
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "trailingCommas": "none",
+      "trailingCommas": "all",
       "semicolons": "always",
       "arrowParentheses": "always",
       "quoteStyle": "double"

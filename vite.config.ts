@@ -11,12 +11,12 @@ export default defineConfig({
       overlay: { initialIsOpen: false },
       typescript: true,
       biome: {
-        command: "check"
-      }
+        command: "check",
+      },
     }),
-    viteTsconfigPaths()
+    viteTsconfigPaths(),
   ],
   server: {
-    port: 3000
-  }
+    port: 3000,
+  },
 });
