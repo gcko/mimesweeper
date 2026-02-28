@@ -101,21 +101,9 @@ function Square({
         onDoubleClick(coOrd, 'dblclick');
       }}
     >
-      <Rect
-        x={x}
-        y={y}
-        width={size}
-        height={size}
-        fill={color}
-        shadowBlur={shadowBlurSize}
-        shadowColor={shadowColor}
-      />
+      <Rect x={x} y={y} width={size} height={size} fill={color} shadowBlur={shadowBlurSize} shadowColor={shadowColor} />
       {/* eslint-disable-next-line no-nested-ternary */}
-      {flagged ? (
-        <Image image={flagImg} height={size} width={size} x={x} y={y} />
-      ) : (
-        ''
-      )}
+      {flagged ? <Image image={flagImg} height={size} width={size} x={x} y={y} /> : ''}
       {opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (

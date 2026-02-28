@@ -23,11 +23,7 @@ export type Coordinate = `${string}|${string}`;
 
 export type EventType = 'click' | 'dblclick' | 'contextmenu';
 
-export type GameStatus =
-  | 'waitingStart'
-  | 'inProgress'
-  | 'gameOverLost'
-  | 'gameOverWon';
+export type GameStatus = 'waitingStart' | 'inProgress' | 'gameOverLost' | 'gameOverWon';
 
 export interface AdjacentProps {
   // Coordinates of a square
