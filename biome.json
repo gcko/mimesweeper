@@ -69,7 +69,7 @@
       "trailingCommas": "none",
       "semicolons": "always",
       "arrowParentheses": "always",
-      "quoteStyle": "single"
+      "quoteStyle": "double"
     }
   },
   "overrides": [

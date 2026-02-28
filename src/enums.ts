@@ -1,9 +1,9 @@
 // Types of updates that can be made to Adjacent Squares. Options include updating
 //  adjacentMime values or opening the squares
 export enum AdjacentUpdate {
-  mimes = 'MIMES',
-  open = 'OPEN',
-  forceOpen = 'FORCE_OPEN'
+  mimes = "MIMES",
+  open = "OPEN",
+  forceOpen = "FORCE_OPEN"
 }
 
 // Number of Squares in the x & y direction of the play area

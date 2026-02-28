@@ -2,8 +2,9 @@
 exclude_paths:
   - "dist/**"
   - "node_modules/**"
-  - "mocks/**"
 engines:
+  eslint:
+    enabled: false
   markdownlint:
     exclude_paths:
       - "AGENTS.md"

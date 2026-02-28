@@ -1,5 +1,5 @@
 // Interface describing the structure of a Square within a Game Grid.
-import type { AdjacentUpdate } from 'enums';
+import type { AdjacentUpdate } from "enums";
 
 export interface GameSquare {
   // Does this square contain a mime?
@@ -21,13 +21,13 @@ export interface GameSquare {
 // Takes an x and y position and generates a coordinate. Example generated key: x=5, y=4, returns '5|4'
 export type Coordinate = `${string}|${string}`;
 
-export type EventType = 'click' | 'dblclick' | 'contextmenu';
+export type EventType = "click" | "dblclick" | "contextmenu";
 
 export type GameStatus =
-  | 'waitingStart'
-  | 'inProgress'
-  | 'gameOverLost'
-  | 'gameOverWon';
+  | "waitingStart"
+  | "inProgress"
+  | "gameOverLost"
+  | "gameOverWon";
 
 export interface AdjacentProps {
   // Coordinates of a square

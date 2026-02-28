@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Layer, Stage } from 'react-konva';
+import { useEffect, useState } from "react";
+import { Layer, Stage } from "react-konva";
 import type {
   AdjacentProps,
   Coordinate,
@@ -7,17 +7,17 @@ import type {
   FlaggedAdjacentProps,
   GameSquare,
   GameStatus
-} from 'types.d';
-import { AdjacentUpdate, GridSize, MimeSize } from './enums.ts';
-import gameOverImage from './images/mime_color.png';
-import Square from './Square';
-import useInterval from './useInterval';
+} from "types.d";
+import { AdjacentUpdate, GridSize, MimeSize } from "./enums.ts";
+import gameOverImage from "./images/mime_color.png";
+import Square from "./Square";
+import useInterval from "./useInterval";
 import {
   coOrdKey,
   generateRandomCoOrd,
   getCoOrd
-} from './utils/coordinates.ts';
-import 'App.css';
+} from "./utils/coordinates.ts";
+import "App.css";
 
 // Magic number. The amount of retries to allow for placing mimes until it will force-exit the while-loop
 const INITIAL_FAILSAFE = 100;
@@ -37,7 +37,7 @@ function App() {
   // Handle state for the game
   const [game, setGame] = useState<Map<Coordinate, GameSquare> | null>(null);
   const [boardSize, setBoardSize] = useState(GridSize.S);
-  const [status, setStatus] = useState<GameStatus>('waitingStart');
+  const [status, setStatus] = useState<GameStatus>("waitingStart");
   const [numMimes, setNumMimes] = useState(MimeSize.S);
   const [numFlags, setNumFlags] = useState<number>(MimeSize.S);
   // biome-ignore lint/correctness/noUnusedVariables: state setter used internally
@@ -129,7 +129,7 @@ function App() {
 
   function populateMimes(
     entries: [Coordinate, GameSquare][],
-    currentPieceCoOrds: Coordinate = '-1|-1'
+    currentPieceCoOrds: Coordinate = "-1|-1"
   ): Map<Coordinate, GameSquare> {
     // reset mimeLocations as this is setting up a new Game
     const mimeLocations: Coordinate[] = [];
@@ -193,7 +193,7 @@ function App() {
     if (square.mime && !square.flagged) {
       // not right-click, not a flag, and hit a mime. Game over
       square.opened = true;
-      setStatus(() => 'gameOverLost');
+      setStatus(() => "gameOverLost");
     } else if (!square.flagged) {
       // not right-click, not a flag, and not a mime
       let count = 0;
@@ -214,7 +214,7 @@ function App() {
         const newCount = prev + count;
         if (numMimes + newCount === boardSize * boardSize) {
           // only the mimes are left, you won!
-          setStatus('gameOverWon');
+          setStatus("gameOverWon");
         }
         return newCount;
       });
@@ -235,7 +235,7 @@ function App() {
         })
       ) {
         // Game over! you found a un-flagged Mime
-        setStatus(() => 'gameOverLost');
+        setStatus(() => "gameOverLost");
       }
       let count = 0;
       // open adjacent squares
@@ -248,7 +248,7 @@ function App() {
         const newCount = prev + count;
         if (numMimes + newCount === boardSize * boardSize) {
           // only the mimes are left, you won!
-          setStatus('gameOverWon');
+          setStatus("gameOverWon");
         }
         return newCount;
       });
@@ -258,17 +258,17 @@ function App() {
 
   const handleSquareSelect = (coOrd: Coordinate, type: EventType): void => {
     let nextStateGame: Map<Coordinate, GameSquare> | null = game;
-    if (status === 'waitingStart' && game) {
+    if (status === "waitingStart" && game) {
       // Game just began! Populate the game board first
       nextStateGame = populateMimes(Array.from(game.entries()), coOrd);
       // Game is now in started state
-      setStatus(() => 'inProgress');
+      setStatus(() => "inProgress");
     }
     let square = game?.get(coOrd);
     if (nextStateGame && square) {
-      if (type === 'contextmenu') {
+      if (type === "contextmenu") {
         square = handleRightClick(square);
-      } else if (type === 'click') {
+      } else if (type === "click") {
         handleSquareClick(coOrd, nextStateGame, square);
       } else {
         // type === 'dblclick'
@@ -305,7 +305,7 @@ function App() {
   };
 
   function restart(mimes = MimeSize.S, size: GridSize = GridSize.S): void {
-    setStatus('waitingStart');
+    setStatus("waitingStart");
     setNumMimes(mimes);
     setNumFlags(mimes);
     setNumOpenSpaces(0);
@@ -317,12 +317,12 @@ function App() {
     () => {
       setPlayTime(playTime + 1);
     },
-    status === 'inProgress' ? timeDelay : null
+    status === "inProgress" ? timeDelay : null
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: newGame is stable per boardSize
   useEffect(() => {
-    if (status === 'waitingStart') {
+    if (status === "waitingStart") {
       setGame(() => newGame(boardSize));
     }
   }, [status, boardSize]);
@@ -354,18 +354,18 @@ function App() {
           </div>
         </div>
       ) : (
-        ''
+        ""
       )}
-      {['gameOverLost', 'gameOverWon'].includes(status) ? (
+      {["gameOverLost", "gameOverWon"].includes(status) ? (
         <div className="overlay">
           <div className="content">
             <h4>
-              GAME OVER! You {status === 'gameOverLost' ? 'Lost :(' : 'Won! :)'}
+              GAME OVER! You {status === "gameOverLost" ? "Lost :(" : "Won! :)"}
             </h4>
             <img
               alt="Game Over!"
               src={gameOverImage}
-              style={{ width: '8rem' }}
+              style={{ width: "8rem" }}
             />
             <p>New Game?</p>
             <div className="buttons">
@@ -405,10 +405,10 @@ function App() {
           </div>
         </div>
       ) : (
-        ''
+        ""
       )}
       <h4>
-        Mimesweeper{' '}
+        Mimesweeper{" "}
         <button
           type="button"
           onClick={() => {
@@ -420,8 +420,8 @@ function App() {
       </h4>
       <h4>
         <small>
-          Play time: {playTime}s | Flags Remaining:{' '}
-          {numFlags < 0 ? 'No more left!' : numFlags}
+          Play time: {playTime}s | Flags Remaining:{" "}
+          {numFlags < 0 ? "No more left!" : numFlags}
         </small>
       </h4>
       <div
@@ -446,7 +446,7 @@ function App() {
               adjacentMimes={square.adjacentMimes}
               opened={square.opened}
               flagged={square.flagged}
-              isGameOver={status === 'gameOverLost' || status === 'gameOverWon'}
+              isGameOver={status === "gameOverLost" || status === "gameOverWon"}
               onSelect={handleSquareSelect}
               onRightClick={handleSquareSelect}
               onDoubleClick={handleSquareSelect}
@@ -454,7 +454,7 @@ function App() {
           ))}
         </Layer>
       </Stage>
-      <p style={{ marginTop: '1rem' }}>Restart?</p>
+      <p style={{ marginTop: "1rem" }}>Restart?</p>
       <div className="buttons">
         <button
           type="button"

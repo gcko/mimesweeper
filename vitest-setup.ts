@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom/vitest';
+import "@testing-library/jest-dom/vitest";
 
 // Mock HTMLCanvasElement.getContext for Konva canvas rendering
 const getContextOriginal = HTMLCanvasElement.prototype.getContext;
@@ -7,7 +7,7 @@ HTMLCanvasElement.prototype.getContext = function (
   contextId: string,
   options?: unknown
 ) {
-  if (contextId === '2d') {
+  if (contextId === "2d") {
     return {
       canvas: this,
       fillRect: () => {},
@@ -52,26 +52,26 @@ HTMLCanvasElement.prototype.getContext = function (
       setLineDash: () => {},
       getLineDash: () => [],
       globalAlpha: 1,
-      globalCompositeOperation: 'source-over',
-      fillStyle: '#000',
-      strokeStyle: '#000',
+      globalCompositeOperation: "source-over",
+      fillStyle: "#000",
+      strokeStyle: "#000",
       lineWidth: 1,
-      lineCap: 'butt',
-      lineJoin: 'miter',
+      lineCap: "butt",
+      lineJoin: "miter",
       miterLimit: 10,
       shadowBlur: 0,
-      shadowColor: 'rgba(0, 0, 0, 0)',
+      shadowColor: "rgba(0, 0, 0, 0)",
       shadowOffsetX: 0,
       shadowOffsetY: 0,
-      font: '10px sans-serif',
-      textAlign: 'start',
-      textBaseline: 'alphabetic',
+      font: "10px sans-serif",
+      textAlign: "start",
+      textBaseline: "alphabetic",
       imageSmoothingEnabled: true
     } as unknown as CanvasRenderingContext2D;
   }
   return getContextOriginal.call(
     this,
-    contextId as '2d',
+    contextId as "2d",
     options as CanvasRenderingContext2DSettings
   );
 };

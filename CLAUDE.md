@@ -74,7 +74,7 @@ Biome (`biome.json`) handles linting and formatting:
 - `recommended: true` with strict TypeScript rules
 - `noConsole: warn` (allow `warn` and `error`)
 - `noParameterAssign: error`
-- Formatter: single quotes, semis, no trailing commas,
+- Formatter: double quotes, semis, no trailing commas,
   2-space indentation
 
 Stylelint (`.stylelintrc`) for CSS files:
