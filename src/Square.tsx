@@ -102,7 +102,7 @@ function Square({
       }}
     >
       <Rect x={x} y={y} width={size} height={size} fill={color} shadowBlur={shadowBlurSize} shadowColor={shadowColor} />
-      {flagged && flagImg ? <Image image={flagImg} height={size} width={size} x={x} y={y} /> : null}
+      {flagged && flagImg && <Image image={flagImg} height={size} width={size} x={x} y={y} />}
       {opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (
