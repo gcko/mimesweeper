@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-
-node .husky/commit-msg.cjs "${1}"

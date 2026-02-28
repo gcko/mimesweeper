@@ -19,9 +19,7 @@ export function getCoOrd(location: Coordinate): [number, number] {
     Number.isNaN(parseInt(location.slice(0, location.indexOf('|')), 10)) ||
     Number.isNaN(parseInt(location.slice(location.indexOf('|') + 1), 10))
   ) {
-    throw new Error(
-      `Unable to correctly parse x and y coordinates from given location string: "${location}"`
-    );
+    throw new Error(`Unable to correctly parse x and y coordinates from given location string: "${location}"`);
   }
   return [
     parseInt(location.slice(0, location.indexOf('|')), 10),

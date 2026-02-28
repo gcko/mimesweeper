@@ -1,0 +1,12 @@
+---
+exclude_paths:
+  - "dist/**"
+  - "node_modules/**"
+  - "mocks/**"
+engines:
+  markdownlint:
+    exclude_paths:
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "docs/KNOWLEDGE_BASE.md"
+      - ".github/PULL_REQUEST_TEMPLATE.md"
