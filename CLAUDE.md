@@ -69,14 +69,13 @@ No Tailwind — styling is plain CSS/Sass in
 
 ## Code Quality Rules
 
-ESLint (`.eslintrc.json`) with strict TypeScript checking:
+Biome (`biome.json`) handles linting and formatting:
 
-- `@typescript-eslint/strict-type-checked`
-- `@typescript-eslint/stylistic-type-checked`
-- `no-console: warn` (allow `warn` and `error`)
-- `no-param-reassign: error`
-- `prettier/prettier: error` — single quotes, semis,
-  no trailing commas, 2-space tabs
+- `recommended: true` with strict TypeScript rules
+- `noConsole: warn` (allow `warn` and `error`)
+- `noParameterAssign: error`
+- Formatter: double quotes, semis, trailing commas,
+  2-space indentation
 
 Stylelint (`.stylelintrc`) for CSS files:
 
@@ -87,14 +86,15 @@ Stylelint (`.stylelintrc`) for CSS files:
 
 ## Testing Architecture
 
-Jest 29 with ts-jest for TypeScript:
+Vitest 4 with happy-dom:
 
-- `jest-canvas-mock` required for Konva tests
-- Static assets mocked via `mocks/fileMock.js`
+- Canvas 2D context mock in `vitest-setup.ts` for
+  Konva tests
+- Vitest globals enabled (`describe`, `test`, `expect`)
+- Coverage via `@vitest/coverage-v8`
 - Coverage threshold: 80% across all metrics
-- Test environment: jsdom
-- Module paths: `src/` as base,
-  `canvas` mapped to `jest-canvas-mock`
+- Test environment: happy-dom
+- Config: `vitest.config.ts` with react-konva ESM alias
 
 ## Game Enums
 
@@ -114,9 +114,9 @@ Difficulty levels pair GridSize with MimeSize.
 
 Husky v9 manages git hooks via `.husky/` directory:
 
-**Pre-commit**: Runs the full test suite (`npm test`),
-ESLint (`npm run lint`), and markdown linting
-(`npm run lint:markdown`). All three must pass.
+**Pre-commit**: Runs the full test suite (`pnpm test`),
+Biome (`pnpm run lint`), and markdown linting
+(`pnpm run lint:markdown`). All three must pass.
 
 **Commit-msg**: Custom validator in
 `.husky/commit-msg.cjs`.
@@ -151,7 +151,7 @@ create one.
 
 AWS CodeBuild (`buildspec.yml`) handles deployment:
 
-1. `npm install` then `npm run build` (tsc + vite)
+1. `pnpm install` then `pnpm run build` (tsc + vite)
 2. Sync `dist/` to S3 bucket
    `mimesweeper.variable.team`
 3. Upload `index.html` with no-cache headers

@@ -27,10 +27,10 @@ screenshots or a screen recording here.
 ## Checklist
 
 - [ ] Commit messages follow project conventions
-- [ ] `npm run lint` passes
-- [ ] `npm run lint:markdown` passes
-- [ ] `npm test` passes
-- [ ] `npm run build` succeeds
+- [ ] `pnpm run lint` passes
+- [ ] `pnpm run lint:markdown` passes
+- [ ] `pnpm test` passes
+- [ ] `pnpm run build` succeeds
 
 ## Related Issues
 

@@ -2,15 +2,15 @@
 
 ## Architecture
 
-React 18 single-page game app rendered on HTML5 Canvas
+React 19 single-page game app rendered on HTML5 Canvas
 via Konva. All game state managed with React hooks.
 No routing.
 -> docs/architecture.md
 
 ## Development
 
-Setup, scripts, Docker, code quality tools (ESLint,
-Stylelint, Remark), and testing with Jest.
+Setup, scripts, Docker, code quality tools (Biome,
+Stylelint, Remark), and testing with Vitest.
 -> docs/development.md
 
 ## Styling
@@ -22,6 +22,6 @@ board, CSS for UI chrome.
 
 ## Deployment
 
-AWS CodeBuild pipeline: npm build, S3 sync, CloudFront
-invalidation. GitHub Actions CI for Node 20.x/22.x.
+AWS CodeBuild pipeline: pnpm build, S3 sync, CloudFront
+invalidation. GitHub Actions CI for Node 22.x/24.x.
 -> docs/deployment.md

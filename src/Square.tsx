@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Group, Image, Rect, Text } from 'react-konva';
-import Gradient from 'javascript-color-gradient';
-import useImage from 'use-image';
-import Konva from 'konva';
-import { Coordinate, EventType, GameSquare } from 'types';
-import KonvaEventObject = Konva.KonvaEventObject;
-import flagImage from './images/stop.png';
-import gameOverImage from './images/mime_color.png';
+import Gradient from "javascript-color-gradient";
+import type Konva from "konva";
+import { useEffect, useState } from "react";
+import { Group, Image, Rect, Text } from "react-konva";
+import type { Coordinate, EventType, GameSquare } from "types";
+import useImage from "use-image";
+
+type KonvaEventObject<T> = Konva.KonvaEventObject<T>;
+
+import gameOverImage from "./images/mime_color.png";
+import flagImage from "./images/stop.png";
 
 interface SquareProps {
   x: number;
@@ -19,11 +21,11 @@ interface SquareProps {
 }
 
 // Capture all the colors and magic number settings in Square
-const unopenedColor = '#FFFFFF';
-const openedColor = '#1bbb00';
-const gradientEnd = '#ffea00';
-const mimeColor = '#f80000';
-const shadowColor = '#000000';
+const unopenedColor = "#FFFFFF";
+const openedColor = "#1bbb00";
+const gradientEnd = "#ffea00";
+const mimeColor = "#f80000";
+const shadowColor = "#000000";
 const shadowBlurSize = 7;
 const textPadding = 5;
 const gradientMidpoint = 4;
@@ -40,19 +42,19 @@ function Square({
   opened,
   flagged,
   isGameOver,
-  adjacentMimes
+  adjacentMimes,
 }: SquareProps & GameSquare) {
   const [color, setColor] = useState(unopenedColor);
 
-  const [flagImg] = useImage(flagImage, undefined, 'same-origin');
-  const [gameOverMime] = useImage(gameOverImage, undefined, 'same-origin');
+  const [flagImg] = useImage(flagImage, undefined, "same-origin");
+  const [gameOverMime] = useImage(gameOverImage, undefined, "same-origin");
 
   // Handler for the left-click Mouse event
   const handleClick = (e: KonvaEventObject<MouseEvent>) => {
     // if this square hides a mime, game over :(
     if (e.evt.button === 0) {
       // Only fire if this is a main button mouse click
-      onSelect(coOrd, 'click');
+      onSelect(coOrd, "click");
     }
     e.evt.preventDefault();
   };
@@ -61,13 +63,13 @@ function Square({
   const handleDblClick = (e: KonvaEventObject<MouseEvent>) => {
     if (e.evt.button === 0) {
       // Only fire if this is the main button mouse double click
-      onDoubleClick(coOrd, 'dblclick');
+      onDoubleClick(coOrd, "dblclick");
     }
   };
 
   // Handler for the right-click event
   const handleContextMenu = (e: KonvaEventObject<PointerEvent>) => {
-    onRightClick(coOrd, 'contextmenu');
+    onRightClick(coOrd, "contextmenu");
     e.evt.preventDefault();
   };
 
@@ -87,7 +89,7 @@ function Square({
     return function cleanup() {
       newColor = unopenedColor;
     };
-  }, [mime, opened, adjacentMimes]);
+  }, [mime, opened, adjacentMimes, gradientArray]);
 
   return (
     <Group
@@ -95,14 +97,24 @@ function Square({
       onContextMenu={handleContextMenu}
       onDblClick={handleDblClick}
       onTap={() => {
-        onSelect(coOrd, 'click');
+        onSelect(coOrd, "click");
       }}
       onDblTap={() => {
-        onDoubleClick(coOrd, 'dblclick');
+        onDoubleClick(coOrd, "dblclick");
       }}
     >
-      <Rect x={x} y={y} width={size} height={size} fill={color} shadowBlur={shadowBlurSize} shadowColor={shadowColor} />
-      {flagged && flagImg && <Image image={flagImg} height={size} width={size} x={x} y={y} />}
+      <Rect
+        x={x}
+        y={y}
+        width={size}
+        height={size}
+        fill={color}
+        shadowBlur={shadowBlurSize}
+        shadowColor={shadowColor}
+      />
+      {flagged && flagImg && (
+        <Image image={flagImg} height={size} width={size} x={x} y={y} />
+      )}
       {opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (

@@ -5,4 +5,4 @@ services:
       - .:/src
     ports:
       - "3000:3000"
-    command: [ "npm", "start" ]
+    command: [ "pnpm", "start" ]

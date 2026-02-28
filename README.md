@@ -27,10 +27,16 @@ The game has the following rules:
 
 ### Traditional Method
 
-This project uses Node >= 20, this is strictly enforced. you can run Node 20 in
-a sub environment
+This project uses Node ^22 || ^24, this is strictly enforced. You can run Node
+in a sub environment
 using [Nave](https://github.com/isaacs/nave)
 or [NVM](https://github.com/nvm-sh/nvm)
+
+This project uses pnpm via corepack. Enable it with:
+
+```shell
+corepack enable
+```
 
 From the project root directory, run the following:
 
@@ -40,7 +46,7 @@ nave auto
 ```
 
 ```shell
-npm install
+pnpm install
 ```
 
 ### Container Method
@@ -58,7 +64,7 @@ docker compose up
 
 In the project directory, you can run:
 
-### `npm start`
+### `pnpm start`
 
 Runs the app in the development mode.\
 Open <http://localhost:3000> to view it in the browser.
@@ -66,14 +72,14 @@ Open <http://localhost:3000> to view it in the browser.
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
 
-### `npm test`
+### `pnpm test`
 
 Launches the test runner in the interactive watch mode.\
 See the section
 about [running tests](https://facebook.github.io/create-react-app/docs/running-tests)
 for more information.
 
-### `npm run build`
+### `pnpm run build`
 
 Builds the app for production to the `build` folder.\
 It correctly bundles React in production mode and optimizes the build for the

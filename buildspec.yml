@@ -6,12 +6,13 @@ phases:
 #      nodejs: 20
   pre_build:
     commands:
-      - echo Installing source NPM dependencies...
-      - npm install
+      - echo Installing source dependencies...
+      - corepack enable
+      - pnpm install --frozen-lockfile
   build:
     commands:
       - echo Build started on 'date'
-      - npm run build
+      - pnpm run build
   post_build:
     commands:
       - aws s3 cp ./dist s3://mimesweeper.variable.team/ --recursive

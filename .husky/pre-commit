@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 
-npm test
-npm run lint
-npm run lint:markdown
+pnpm test
+pnpm run lint
+pnpm run lint:markdown
