@@ -139,6 +139,17 @@ function App() {
     }
   }, [status, boardSize]);
 
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(".board-scroll")) {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => document.removeEventListener("contextmenu", handleContextMenu);
+  }, []);
+
   const gameEntries = useMemo(
     () => Array.from(game ? game.entries() : []),
     [game],
@@ -154,9 +165,12 @@ function App() {
           <div className="content">
             <h4>How to Play</h4>
             <ol>
-              <li>Left click to open a space</li>
-              <li>Right click to flag a space</li>
-              <li>Double click to open all adjacent un-flagged spaces</li>
+              <li>Click or tap to open a space</li>
+              <li>Right-click or long-press to flag a space</li>
+              <li>
+                Double-click or double-tap to open all adjacent un-flagged
+                spaces
+              </li>
             </ol>
             <div className="buttons">
               <button
@@ -253,34 +267,36 @@ function App() {
         </div>
       </header>
       <div className="mimes" style={{ width: `${squareSide * boardSize}px` }} />
-      <Stage
-        width={squareSide * boardSize}
-        height={squareSide * boardSize}
-        className="stage"
-        data-test-id="stage"
-      >
-        <Layer>
-          {gameEntries.map(([key, square]) => (
-            <Square
-              key={key}
-              coOrd={key}
-              x={square.x}
-              y={square.y}
-              size={squareSide}
-              mime={square.mime}
-              adjacentMimes={square.adjacentMimes}
-              opened={square.opened}
-              flagged={square.flagged}
-              clickedMime={square.clickedMime}
-              wrongFlag={square.wrongFlag}
-              isGameOver={isGameOver}
-              onSelect={handleSquareSelect}
-              onRightClick={handleSquareSelect}
-              onDoubleClick={handleSquareSelect}
-            />
-          ))}
-        </Layer>
-      </Stage>
+      <div className="board-scroll">
+        <Stage
+          width={squareSide * boardSize}
+          height={squareSide * boardSize}
+          className="stage"
+          data-test-id="stage"
+        >
+          <Layer>
+            {gameEntries.map(([key, square]) => (
+              <Square
+                key={key}
+                coOrd={key}
+                x={square.x}
+                y={square.y}
+                size={squareSide}
+                mime={square.mime}
+                adjacentMimes={square.adjacentMimes}
+                opened={square.opened}
+                flagged={square.flagged}
+                clickedMime={square.clickedMime}
+                wrongFlag={square.wrongFlag}
+                isGameOver={isGameOver}
+                onSelect={handleSquareSelect}
+                onRightClick={handleSquareSelect}
+                onDoubleClick={handleSquareSelect}
+              />
+            ))}
+          </Layer>
+        </Stage>
+      </div>
       <p style={{ marginTop: "1rem" }}>Restart?</p>
       <div className="buttons">
         <DifficultyButtons onRestart={handleRestart} />
