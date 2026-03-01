@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { Layer, Stage } from "react-konva";
-import type { Coordinate, EventType } from "types.d";
+import type { Coordinate, DifficultyKey, EventType } from "types.d";
 import { GridSize, MimeSize } from "./enums.ts";
 import { gameReducer, initialState } from "./gameReducer.ts";
+import { useScoreboard } from "./hooks/useScoreboard.ts";
 import gameOverImage from "./images/mime_color.png";
+import Scoreboard from "./Scoreboard";
 import Square from "./Square";
 import useInterval from "./useInterval";
 import { SQUARE_SIDE } from "./utils/gameLogic.ts";
@@ -55,12 +57,35 @@ function DifficultyButtons({ onRestart }: DifficultyButtonsProps) {
   );
 }
 
+function getDifficultyKey(boardSize: GridSize): DifficultyKey {
+  switch (boardSize) {
+    case GridSize.M:
+      return "M";
+    case GridSize.L:
+      return "L";
+    case GridSize.XL:
+      return "XL";
+    default:
+      return "S";
+  }
+}
+
 function App() {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const { game, boardSize, status, numFlags, playTime, showRules, score } =
     state;
 
+  const { getScores, isHighScore, addScore } = useScoreboard();
+  const [showScoreboard, setShowScoreboard] = useState(false);
+  const [playerName, setPlayerName] = useState("");
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
+
   const isGameOver = status === "gameOverLost" || status === "gameOverWon";
+  const difficultyKey = getDifficultyKey(boardSize);
+  const qualifiesForHighScore =
+    status === "gameOverWon" &&
+    !scoreSubmitted &&
+    isHighScore(difficultyKey, score);
 
   const handleSquareSelect = useCallback(
     (coOrd: Coordinate, type: EventType): void => {
@@ -82,6 +107,8 @@ function App() {
   const handleRestart = useCallback(
     (mimes: MimeSize = MimeSize.S, size: GridSize = GridSize.S): void => {
       dispatch({ type: "START_GAME", boardSize: size, numMimes: mimes });
+      setPlayerName("");
+      setScoreSubmitted(false);
     },
     [],
   );
@@ -131,6 +158,12 @@ function App() {
           </div>
         </div>
       ) : null}
+      {showScoreboard ? (
+        <Scoreboard
+          getScores={getScores}
+          onClose={() => setShowScoreboard(false)}
+        />
+      ) : null}
       {isGameOver ? (
         <div className="overlay">
           <div className="content">
@@ -138,7 +171,33 @@ function App() {
               GAME OVER! You {status === "gameOverLost" ? "Lost :(" : "Won! :)"}
             </h4>
             {status === "gameOverWon" && (
-              <h2 className="final-score">Score: {score}</h2>
+              <>
+                <h2 className="final-score">Score: {score}</h2>
+                {qualifiesForHighScore ? (
+                  <div className="high-score-entry">
+                    <p>New High Score!</p>
+                    <input
+                      type="text"
+                      maxLength={10}
+                      placeholder="Your name"
+                      value={playerName}
+                      onChange={(e) => setPlayerName(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      disabled={playerName.trim().length === 0}
+                      onClick={() => {
+                        addScore(difficultyKey, playerName.trim(), score);
+                        setScoreSubmitted(true);
+                      }}
+                    >
+                      Submit Score
+                    </button>
+                  </div>
+                ) : scoreSubmitted ? (
+                  <p>Score saved!</p>
+                ) : null}
+              </>
             )}
             <img
               alt="Game Over!"
@@ -161,6 +220,14 @@ function App() {
           }}
         >
           How to play
+        </button>{" "}
+        <button
+          type="button"
+          onClick={() => {
+            setShowScoreboard(true);
+          }}
+        >
+          Scoreboard
         </button>
       </h4>
       <h4>
@@ -191,6 +258,8 @@ function App() {
               adjacentMimes={square.adjacentMimes}
               opened={square.opened}
               flagged={square.flagged}
+              clickedMime={square.clickedMime}
+              wrongFlag={square.wrongFlag}
               isGameOver={isGameOver}
               onSelect={handleSquareSelect}
               onRightClick={handleSquareSelect}
