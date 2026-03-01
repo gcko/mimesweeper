@@ -1,6 +1,6 @@
 import Gradient from "javascript-color-gradient";
 import type Konva from "konva";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { Group, Image, Rect, Text } from "react-konva";
 import type { Coordinate, EventType, GameSquare } from "types";
 import useImage from "use-image";
@@ -56,6 +56,13 @@ function Square({
   const [flagImg] = useImage(flagImage, undefined, "same-origin");
   const [gameOverMime] = useImage(gameOverImage, undefined, "same-origin");
 
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const longPressTriggered = useRef(false);
+
+  const LONG_PRESS_DURATION = 500;
+  const MOVE_THRESHOLD = 10;
+
   const color = useMemo(() => {
     if (opened && mime && clickedMime) {
       return mimeColor;
@@ -97,12 +104,46 @@ function Square({
   );
 
   const handleTap = useCallback(() => {
+    if (longPressTriggered.current) return;
     onSelect(coOrd, "click");
   }, [coOrd, onSelect]);
 
   const handleDblTap = useCallback(() => {
     onDoubleClick(coOrd, "dblclick");
   }, [coOrd, onDoubleClick]);
+
+  const handleTouchStart = useCallback(
+    (e: KonvaEventObject<TouchEvent>) => {
+      const touch = e.evt.touches[0];
+      if (!touch) return;
+      touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+      longPressTriggered.current = false;
+
+      longPressTimer.current = setTimeout(() => {
+        longPressTriggered.current = true;
+        onRightClick(coOrd, "contextmenu");
+      }, LONG_PRESS_DURATION);
+    },
+    [coOrd, onRightClick],
+  );
+
+  const handleTouchMove = useCallback((e: KonvaEventObject<TouchEvent>) => {
+    if (!touchStartPos.current || !longPressTimer.current) return;
+    const touch = e.evt.touches[0];
+    const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+    const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+    if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
 
   return (
     <Group
@@ -111,6 +152,9 @@ function Square({
       onDblClick={handleDblClick}
       onTap={handleTap}
       onDblTap={handleDblTap}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <Rect
         x={x}
