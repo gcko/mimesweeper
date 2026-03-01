@@ -175,6 +175,7 @@ function Square({
           height={size}
           padding={textPadding}
           align="center"
+          verticalAlign="middle"
           text="X"
           fontFamily="Press Start 2P"
           fill="#f80000"
@@ -190,6 +191,7 @@ function Square({
           height={size}
           padding={textPadding}
           align="center"
+          verticalAlign="middle"
           text={opened ? String(adjacentMimes) : ``}
           fontFamily="Press Start 2P"
         />
