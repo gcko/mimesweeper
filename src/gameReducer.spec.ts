@@ -25,6 +25,10 @@ describe("gameReducer", () => {
       expect(initialState.playTime).toBe(0);
       expect(initialState.showRules).toBe(false);
     });
+
+    test("has score initialized to 0", () => {
+      expect(initialState.score).toBe(0);
+    });
   });
 
   describe("START_GAME", () => {
@@ -93,6 +97,46 @@ describe("gameReducer", () => {
 
       expect(result.status).toBe("waitingStart");
     });
+
+    test("sets score to 1000 for GridSize.S", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.S,
+        numMimes: MimeSize.S,
+      });
+
+      expect(result.score).toBe(1000);
+    });
+
+    test("sets score to 6000 for GridSize.M", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.M,
+        numMimes: MimeSize.M,
+      });
+
+      expect(result.score).toBe(6000);
+    });
+
+    test("sets score to 11000 for GridSize.L", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.L,
+        numMimes: MimeSize.L,
+      });
+
+      expect(result.score).toBe(11000);
+    });
+
+    test("sets score to 16000 for GridSize.XL", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.XL,
+        numMimes: MimeSize.XL,
+      });
+
+      expect(result.score).toBe(16000);
+    });
   });
 
   describe("INIT_BOARD", () => {
@@ -156,6 +200,22 @@ describe("gameReducer", () => {
       const result = gameReducer(state, { type: "TICK" });
 
       expect(result.playTime).toBe(100);
+    });
+
+    test("decrements score by 5", () => {
+      const state: GameState = { ...initialState, score: 1000 };
+
+      const result = gameReducer(state, { type: "TICK" });
+
+      expect(result.score).toBe(995);
+    });
+
+    test("score does not go below 0", () => {
+      const state: GameState = { ...initialState, score: 2 };
+
+      const result = gameReducer(state, { type: "TICK" });
+
+      expect(result.score).toBe(0);
     });
   });
 
@@ -378,6 +438,128 @@ describe("gameReducer", () => {
 
       expect(result.game).not.toBe(state.game);
       expect(result.game).toBeInstanceOf(Map);
+    });
+
+    describe("mine reveal on game over", () => {
+      test("reveals all unflagged mines when game is lost", () => {
+        const board = createTestBoard(3);
+        const mine1 = board.get("1|0" as Coordinate);
+        expect(mine1).toBeDefined();
+        if (mine1) mine1.mime = true;
+        const mine2 = board.get("2|0" as Coordinate);
+        expect(mine2).toBeDefined();
+        if (mine2) mine2.mime = true;
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const otherMine = result.game?.get("2|0" as Coordinate);
+        expect(otherMine?.opened).toBe(true);
+      });
+
+      test("marks clicked mine with clickedMime flag", () => {
+        const board = createTestBoard(3);
+        const mine = board.get("1|0" as Coordinate);
+        expect(mine).toBeDefined();
+        if (mine) mine.mime = true;
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const clickedMine = result.game?.get("1|0" as Coordinate);
+        expect(clickedMine?.clickedMime).toBe(true);
+      });
+
+      test("marks wrongly flagged non-mine squares", () => {
+        const board = createTestBoard(3);
+        const mine = board.get("1|0" as Coordinate);
+        expect(mine).toBeDefined();
+        if (mine) mine.mime = true;
+        const wrongSquare = board.get("0|1" as Coordinate);
+        expect(wrongSquare).toBeDefined();
+        if (wrongSquare) wrongSquare.flagged = true;
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const wrong = result.game?.get("0|1" as Coordinate);
+        expect(wrong?.wrongFlag).toBe(true);
+      });
+
+      test("does not mark correctly flagged mines as wrongFlag", () => {
+        const board = createTestBoard(3);
+        const mine1 = board.get("1|0" as Coordinate);
+        expect(mine1).toBeDefined();
+        if (mine1) mine1.mime = true;
+        const mine2 = board.get("2|0" as Coordinate);
+        expect(mine2).toBeDefined();
+        if (mine2) {
+          mine2.mime = true;
+          mine2.flagged = true;
+        }
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const correctFlag = result.game?.get("2|0" as Coordinate);
+        expect(correctFlag?.wrongFlag).toBeUndefined();
+      });
     });
 
     test("does not mutate original state.game during inProgress click", () => {

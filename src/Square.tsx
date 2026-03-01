@@ -50,19 +50,24 @@ function Square({
   flagged,
   isGameOver,
   adjacentMimes,
+  clickedMime,
+  wrongFlag,
 }: SquareProps & GameSquare) {
   const [flagImg] = useImage(flagImage, undefined, "same-origin");
   const [gameOverMime] = useImage(gameOverImage, undefined, "same-origin");
 
   const color = useMemo(() => {
-    if (opened && mime) {
+    if (opened && mime && clickedMime) {
       return mimeColor;
+    }
+    if (opened && mime) {
+      return unopenedColor;
     }
     if (opened) {
       return gradientArray[adjacentMimes];
     }
     return unopenedColor;
-  }, [opened, mime, adjacentMimes]);
+  }, [opened, mime, adjacentMimes, clickedMime]);
 
   const handleClick = useCallback(
     (e: KonvaEventObject<MouseEvent>) => {
@@ -119,7 +124,20 @@ function Square({
       {flagged && flagImg && (
         <Image image={flagImg} height={size} width={size} x={x} y={y} />
       )}
-      {opened && mime && isGameOver ? (
+      {wrongFlag && isGameOver ? (
+        <Text
+          x={x}
+          y={y}
+          width={size}
+          height={size}
+          padding={textPadding}
+          align="center"
+          text="X"
+          fontFamily="Press Start 2P"
+          fill="#f80000"
+          fontSize={14}
+        />
+      ) : opened && mime && isGameOver ? (
         <Image image={gameOverMime} height={size} width={size} x={x} y={y} />
       ) : (
         <Text

@@ -9,6 +9,7 @@ import {
   processSquareClick,
   SQUARE_SIDE,
 } from "./utils/gameLogic.ts";
+import { decrementScore, getBaseScore } from "./utils/score.ts";
 
 export interface GameState {
   game: Map<Coordinate, GameSquare> | null;
@@ -18,6 +19,7 @@ export interface GameState {
   numFlags: number;
   numOpenSpaces: number;
   playTime: number;
+  score: number;
   showRules: boolean;
 }
 
@@ -38,6 +40,7 @@ export const initialState: GameState = {
   numFlags: MimeSize.S,
   numOpenSpaces: 0,
   playTime: 0,
+  score: 0,
   showRules: false,
 };
 
@@ -51,6 +54,21 @@ function cloneGame(
   return clone;
 }
 
+function revealMinesOnLoss(
+  game: Map<Coordinate, GameSquare>,
+  clickedCoord: Coordinate,
+): void {
+  for (const [coord, square] of game) {
+    if (coord === clickedCoord) {
+      square.clickedMime = true;
+    } else if (square.mime && !square.flagged) {
+      square.opened = true;
+    } else if (!square.mime && square.flagged) {
+      square.wrongFlag = true;
+    }
+  }
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_GAME":
@@ -62,6 +80,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         numFlags: action.numMimes,
         numOpenSpaces: 0,
         playTime: 0,
+        score: getBaseScore(action.boardSize),
       };
 
     case "INIT_BOARD": {
@@ -75,7 +94,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "TICK":
-      return { ...state, playTime: state.playTime + 1 };
+      return {
+        ...state,
+        playTime: state.playTime + 1,
+        score: decrementScore(state.score),
+      };
 
     case "TOGGLE_RULES":
       return { ...state, showRules: !state.showRules };
@@ -115,6 +138,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       if (result.lost) {
         nextStatus = "gameOverLost";
+        revealMinesOnLoss(nextGame, action.coordinate);
       }
 
       const newOpenSpaces = state.numOpenSpaces + result.openedCount;
@@ -170,6 +194,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       let nextStatus: GameStatus = state.status;
       if (result.lost) {
         nextStatus = "gameOverLost";
+        revealMinesOnLoss(nextGame, action.coordinate);
       }
 
       const newOpenSpaces = state.numOpenSpaces + result.openedCount;

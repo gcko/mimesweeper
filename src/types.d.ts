@@ -14,6 +14,10 @@ export interface GameSquare {
   x: number;
   // Starting Y value of the square
   y: number;
+  // Was this the mime that the player clicked? (game over indicator)
+  clickedMime?: boolean;
+  // Was this square incorrectly flagged? (not actually a mime)
+  wrongFlag?: boolean;
 }
 
 // Takes an x and y position and generates a coordinate. Example generated key: x=5, y=4, returns '5|4'
@@ -40,3 +44,12 @@ export interface FlaggedAdjacentProps {
   location: Coordinate;
   upcomingGame: Map<Coordinate, GameSquare>;
 }
+
+export interface ScoreEntry {
+  name: string;
+  score: number;
+}
+
+export type DifficultyKey = "S" | "M" | "L" | "XL";
+
+export type ScoreboardData = Record<DifficultyKey, ScoreEntry[]>;
