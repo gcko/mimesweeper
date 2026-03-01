@@ -4,11 +4,12 @@ import type { Coordinate, DifficultyKey, EventType } from "types.d";
 import { GridSize, MimeSize } from "./enums.ts";
 import { gameReducer, initialState } from "./gameReducer.ts";
 import { useScoreboard } from "./hooks/useScoreboard.ts";
+import { useWindowSize } from "./hooks/useWindowSize.ts";
 import gameOverImage from "./images/mime_color.png";
 import Scoreboard from "./Scoreboard";
 import Square from "./Square";
 import useInterval from "./useInterval";
-import { SQUARE_SIDE } from "./utils/gameLogic.ts";
+import { computeSquareSide } from "./utils/responsive.ts";
 import "App.css";
 
 // Interval delay of the timer. Defaults to 1s (1000ms)
@@ -75,6 +76,12 @@ function App() {
   const { game, boardSize, status, numFlags, playTime, showRules, score } =
     state;
 
+  const { width: viewportWidth } = useWindowSize();
+  const squareSide = useMemo(
+    () => computeSquareSide(viewportWidth, boardSize),
+    [viewportWidth, boardSize],
+  );
+
   const { getScores, isHighScore, addScore } = useScoreboard();
   const [showScoreboard, setShowScoreboard] = useState(false);
   const [playerName, setPlayerName] = useState("");
@@ -106,11 +113,17 @@ function App() {
 
   const handleRestart = useCallback(
     (mimes: MimeSize = MimeSize.S, size: GridSize = GridSize.S): void => {
-      dispatch({ type: "START_GAME", boardSize: size, numMimes: mimes });
+      const newSquareSide = computeSquareSide(viewportWidth, size);
+      dispatch({
+        type: "START_GAME",
+        boardSize: size,
+        numMimes: mimes,
+        squareSide: newSquareSide,
+      });
       setPlayerName("");
       setScoreSubmitted(false);
     },
-    [],
+    [viewportWidth],
   );
 
   useInterval(
@@ -134,7 +147,7 @@ function App() {
   return (
     <div
       className="container"
-      style={{ minWidth: `${String(SQUARE_SIDE * boardSize)}px` }}
+      style={{ maxWidth: `${squareSide * boardSize + 32}px` }}
     >
       {showRules ? (
         <div className="overlay">
@@ -236,13 +249,10 @@ function App() {
           {numFlags < 0 ? "No more left!" : numFlags}
         </small>
       </h4>
-      <div
-        className="mimes"
-        style={{ width: `${String(SQUARE_SIDE * boardSize)}px` }}
-      />
+      <div className="mimes" style={{ width: `${squareSide * boardSize}px` }} />
       <Stage
-        width={SQUARE_SIDE * boardSize}
-        height={SQUARE_SIDE * boardSize}
+        width={squareSide * boardSize}
+        height={squareSide * boardSize}
         className="stage"
         data-test-id="stage"
       >
@@ -253,7 +263,7 @@ function App() {
               coOrd={key}
               x={square.x}
               y={square.y}
-              size={SQUARE_SIDE}
+              size={squareSide}
               mime={square.mime}
               adjacentMimes={square.adjacentMimes}
               opened={square.opened}

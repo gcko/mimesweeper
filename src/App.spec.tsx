@@ -34,6 +34,10 @@ vi.mock("use-image", () => ({
   default: () => [null, "loaded"],
 }));
 
+vi.mock("./hooks/useWindowSize.ts", () => ({
+  useWindowSize: () => ({ width: 1440, height: 900 }),
+}));
+
 describe("App", () => {
   describe("initial rendering", () => {
     test("renders title", () => {
