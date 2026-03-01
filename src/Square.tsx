@@ -30,6 +30,8 @@ const shadowColor = "#000000";
 const shadowBlurSize = 7;
 const textPadding = 5;
 const gradientMidpoint = 4;
+const LONG_PRESS_DURATION = 500;
+const MOVE_THRESHOLD = 10;
 
 // Hoisted to module scope — inputs are constants, no need to recompute
 const gradientArray = new Gradient()
@@ -59,9 +61,6 @@ function Square({
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const longPressTriggered = useRef(false);
-
-  const LONG_PRESS_DURATION = 500;
-  const MOVE_THRESHOLD = 10;
 
   const color = useMemo(() => {
     if (opened && mime && clickedMime) {

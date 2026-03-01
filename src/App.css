@@ -82,6 +82,7 @@
   width: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
   margin: 0 auto;
 }
 
