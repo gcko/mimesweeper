@@ -1,6 +1,6 @@
 import Gradient from "javascript-color-gradient";
 import type Konva from "konva";
-import { useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { Group, Image, Rect, Text } from "react-konva";
 import type { Coordinate, EventType, GameSquare } from "types";
 import useImage from "use-image";
@@ -30,6 +30,12 @@ const shadowBlurSize = 7;
 const textPadding = 5;
 const gradientMidpoint = 4;
 
+// Hoisted to module scope — inputs are constants, no need to recompute
+const gradientArray = new Gradient()
+  .setColorGradient(openedColor, gradientEnd)
+  .setMidpoint(gradientMidpoint)
+  .getColors();
+
 function Square({
   coOrd,
   x,
@@ -44,64 +50,61 @@ function Square({
   isGameOver,
   adjacentMimes,
 }: SquareProps & GameSquare) {
-  const [color, setColor] = useState(unopenedColor);
-
   const [flagImg] = useImage(flagImage, undefined, "same-origin");
   const [gameOverMime] = useImage(gameOverImage, undefined, "same-origin");
 
-  // Handler for the left-click Mouse event
-  const handleClick = (e: KonvaEventObject<MouseEvent>) => {
-    // if this square hides a mime, game over :(
-    if (e.evt.button === 0) {
-      // Only fire if this is a main button mouse click
-      onSelect(coOrd, "click");
-    }
-    e.evt.preventDefault();
-  };
-
-  // Handler for a double click event
-  const handleDblClick = (e: KonvaEventObject<MouseEvent>) => {
-    if (e.evt.button === 0) {
-      // Only fire if this is the main button mouse double click
-      onDoubleClick(coOrd, "dblclick");
-    }
-  };
-
-  // Handler for the right-click event
-  const handleContextMenu = (e: KonvaEventObject<PointerEvent>) => {
-    onRightClick(coOrd, "contextmenu");
-    e.evt.preventDefault();
-  };
-
-  const gradientArray = new Gradient()
-    .setColorGradient(openedColor, gradientEnd)
-    .setMidpoint(gradientMidpoint)
-    .getColors();
-
-  useEffect(() => {
-    let newColor = unopenedColor;
+  const color = useMemo(() => {
     if (opened && mime) {
-      newColor = mimeColor;
-    } else if (opened) {
-      newColor = gradientArray[adjacentMimes];
+      return mimeColor;
     }
-    setColor(() => newColor);
-    return function cleanup() {
-      newColor = unopenedColor;
-    };
-  }, [mime, opened, adjacentMimes, gradientArray]);
+    if (opened) {
+      return gradientArray[adjacentMimes];
+    }
+    return unopenedColor;
+  }, [opened, mime, adjacentMimes]);
+
+  const handleClick = useCallback(
+    (e: KonvaEventObject<MouseEvent>) => {
+      if (e.evt.button === 0) {
+        onSelect(coOrd, "click");
+      }
+      e.evt.preventDefault();
+    },
+    [coOrd, onSelect],
+  );
+
+  const handleDblClick = useCallback(
+    (e: KonvaEventObject<MouseEvent>) => {
+      if (e.evt.button === 0) {
+        onDoubleClick(coOrd, "dblclick");
+      }
+    },
+    [coOrd, onDoubleClick],
+  );
+
+  const handleContextMenu = useCallback(
+    (e: KonvaEventObject<PointerEvent>) => {
+      onRightClick(coOrd, "contextmenu");
+      e.evt.preventDefault();
+    },
+    [coOrd, onRightClick],
+  );
+
+  const handleTap = useCallback(() => {
+    onSelect(coOrd, "click");
+  }, [coOrd, onSelect]);
+
+  const handleDblTap = useCallback(() => {
+    onDoubleClick(coOrd, "dblclick");
+  }, [coOrd, onDoubleClick]);
 
   return (
     <Group
       onClick={handleClick}
       onContextMenu={handleContextMenu}
       onDblClick={handleDblClick}
-      onTap={() => {
-        onSelect(coOrd, "click");
-      }}
-      onDblTap={() => {
-        onDoubleClick(coOrd, "dblclick");
-      }}
+      onTap={handleTap}
+      onDblTap={handleDblTap}
     >
       <Rect
         x={x}
