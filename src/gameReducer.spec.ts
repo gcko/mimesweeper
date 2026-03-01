@@ -440,6 +440,128 @@ describe("gameReducer", () => {
       expect(result.game).toBeInstanceOf(Map);
     });
 
+    describe("mine reveal on game over", () => {
+      test("reveals all unflagged mines when game is lost", () => {
+        const board = createTestBoard(3);
+        const mine1 = board.get("1|0" as Coordinate);
+        expect(mine1).toBeDefined();
+        if (mine1) mine1.mime = true;
+        const mine2 = board.get("2|0" as Coordinate);
+        expect(mine2).toBeDefined();
+        if (mine2) mine2.mime = true;
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const otherMine = result.game?.get("2|0" as Coordinate);
+        expect(otherMine?.opened).toBe(true);
+      });
+
+      test("marks clicked mine with clickedMime flag", () => {
+        const board = createTestBoard(3);
+        const mine = board.get("1|0" as Coordinate);
+        expect(mine).toBeDefined();
+        if (mine) mine.mime = true;
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const clickedMine = result.game?.get("1|0" as Coordinate);
+        expect(clickedMine?.clickedMime).toBe(true);
+      });
+
+      test("marks wrongly flagged non-mine squares", () => {
+        const board = createTestBoard(3);
+        const mine = board.get("1|0" as Coordinate);
+        expect(mine).toBeDefined();
+        if (mine) mine.mime = true;
+        const wrongSquare = board.get("0|1" as Coordinate);
+        expect(wrongSquare).toBeDefined();
+        if (wrongSquare) wrongSquare.flagged = true;
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const wrong = result.game?.get("0|1" as Coordinate);
+        expect(wrong?.wrongFlag).toBe(true);
+      });
+
+      test("does not mark correctly flagged mines as wrongFlag", () => {
+        const board = createTestBoard(3);
+        const mine1 = board.get("1|0" as Coordinate);
+        expect(mine1).toBeDefined();
+        if (mine1) mine1.mime = true;
+        const mine2 = board.get("2|0" as Coordinate);
+        expect(mine2).toBeDefined();
+        if (mine2) {
+          mine2.mime = true;
+          mine2.flagged = true;
+        }
+
+        const state: GameState = {
+          ...initialState,
+          game: board,
+          status: "inProgress",
+          numMimes: MimeSize.XS,
+        };
+
+        vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+          openedCount: 0,
+          lost: true,
+        });
+
+        const result = gameReducer(state, {
+          type: "SQUARE_CLICK",
+          coordinate: "1|0" as Coordinate,
+        });
+
+        const correctFlag = result.game?.get("2|0" as Coordinate);
+        expect(correctFlag?.wrongFlag).toBeUndefined();
+      });
+    });
+
     test("does not mutate original state.game during inProgress click", () => {
       const board = createTestBoard(3);
       const originalSquare = board.get("0|0" as Coordinate);

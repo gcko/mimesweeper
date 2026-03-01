@@ -54,6 +54,21 @@ function cloneGame(
   return clone;
 }
 
+function revealMinesOnLoss(
+  game: Map<Coordinate, GameSquare>,
+  clickedCoord: Coordinate,
+): void {
+  for (const [coord, square] of game) {
+    if (coord === clickedCoord) {
+      square.clickedMime = true;
+    } else if (square.mime && !square.flagged) {
+      square.opened = true;
+    } else if (!square.mime && square.flagged) {
+      square.wrongFlag = true;
+    }
+  }
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_GAME":
@@ -123,6 +138,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       if (result.lost) {
         nextStatus = "gameOverLost";
+        revealMinesOnLoss(nextGame, action.coordinate);
       }
 
       const newOpenSpaces = state.numOpenSpaces + result.openedCount;
@@ -178,6 +194,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       let nextStatus: GameStatus = state.status;
       if (result.lost) {
         nextStatus = "gameOverLost";
+        revealMinesOnLoss(nextGame, action.coordinate);
       }
 
       const newOpenSpaces = state.numOpenSpaces + result.openedCount;
