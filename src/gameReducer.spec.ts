@@ -37,6 +37,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.L,
         numMimes: MimeSize.L,
+        squareSide: 25,
       });
 
       expect(result.boardSize).toBe(GridSize.L);
@@ -48,6 +49,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.M,
         numMimes: MimeSize.M,
+        squareSide: 25,
       });
 
       expect(result.numFlags).toBe(MimeSize.M);
@@ -63,6 +65,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.S,
         numMimes: MimeSize.S,
+        squareSide: 25,
       });
 
       expect(result.playTime).toBe(0);
@@ -78,6 +81,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.S,
         numMimes: MimeSize.S,
+        squareSide: 25,
       });
 
       expect(result.numOpenSpaces).toBe(0);
@@ -93,6 +97,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.S,
         numMimes: MimeSize.S,
+        squareSide: 25,
       });
 
       expect(result.status).toBe("waitingStart");
@@ -103,6 +108,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.S,
         numMimes: MimeSize.S,
+        squareSide: 25,
       });
 
       expect(result.score).toBe(1000);
@@ -113,6 +119,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.M,
         numMimes: MimeSize.M,
+        squareSide: 25,
       });
 
       expect(result.score).toBe(6000);
@@ -123,6 +130,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.L,
         numMimes: MimeSize.L,
+        squareSide: 25,
       });
 
       expect(result.score).toBe(11000);
@@ -133,6 +141,7 @@ describe("gameReducer", () => {
         type: "START_GAME",
         boardSize: GridSize.XL,
         numMimes: MimeSize.XL,
+        squareSide: 25,
       });
 
       expect(result.score).toBe(16000);
@@ -143,7 +152,10 @@ describe("gameReducer", () => {
     test("creates game when status is waitingStart", () => {
       const newGameSpy = vi.spyOn(gameLogic, "newGame");
 
-      const result = gameReducer(initialState, { type: "INIT_BOARD" });
+      const result = gameReducer(initialState, {
+        type: "INIT_BOARD",
+        squareSide: gameLogic.SQUARE_SIDE,
+      });
 
       expect(newGameSpy).toHaveBeenCalledWith(
         GridSize.S,
@@ -159,7 +171,10 @@ describe("gameReducer", () => {
         game: createTestBoard(2),
       };
 
-      const result = gameReducer(state, { type: "INIT_BOARD" });
+      const result = gameReducer(state, {
+        type: "INIT_BOARD",
+        squareSide: 25,
+      });
 
       expect(result).toBe(state);
     });
@@ -170,7 +185,10 @@ describe("gameReducer", () => {
         status: "gameOverWon",
       };
 
-      const result = gameReducer(state, { type: "INIT_BOARD" });
+      const result = gameReducer(state, {
+        type: "INIT_BOARD",
+        squareSide: 25,
+      });
 
       expect(result).toBe(state);
     });
@@ -181,9 +199,27 @@ describe("gameReducer", () => {
         status: "gameOverLost",
       };
 
-      const result = gameReducer(state, { type: "INIT_BOARD" });
+      const result = gameReducer(state, {
+        type: "INIT_BOARD",
+        squareSide: 25,
+      });
 
       expect(result).toBe(state);
+    });
+
+    test("INIT_BOARD uses squareSide from action", () => {
+      const startState = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.S,
+        numMimes: MimeSize.S,
+        squareSide: 25,
+      });
+      const result = gameReducer(startState, {
+        type: "INIT_BOARD",
+        squareSide: 35,
+      });
+      const square = result.game?.get("1|0" as Coordinate);
+      expect(square?.x).toBe(35); // 1 * 35
     });
   });
 

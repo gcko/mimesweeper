@@ -34,6 +34,10 @@ vi.mock("use-image", () => ({
   default: () => [null, "loaded"],
 }));
 
+vi.mock("./hooks/useWindowSize.ts", () => ({
+  useWindowSize: () => ({ width: 1440, height: 900 }),
+}));
+
 describe("App", () => {
   describe("initial rendering", () => {
     test("renders title", () => {
@@ -97,7 +101,7 @@ describe("App", () => {
       });
       expect(screen.getByText("How to Play")).toBeInTheDocument();
       expect(
-        screen.getByText(/Left click to open a space/i),
+        screen.getByText(/Click or tap to open a space/i),
       ).toBeInTheDocument();
     });
 
@@ -110,8 +114,19 @@ describe("App", () => {
         screen.getByText(/Let's play!/i).click();
       });
       expect(
-        screen.queryByText(/Left click to open a space/i),
+        screen.queryByText(/Click or tap to open a space/i),
       ).not.toBeInTheDocument();
+    });
+
+    test("shows touch instructions text", async () => {
+      render(<App />);
+      const button = screen.getByText("How to play");
+      await act(() => {
+        fireEvent.click(button);
+      });
+
+      expect(screen.getByText(/tap to open a space/i)).toBeInTheDocument();
+      expect(screen.getByText(/long-press to flag/i)).toBeInTheDocument();
     });
   });
 

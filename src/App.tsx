@@ -4,11 +4,12 @@ import type { Coordinate, DifficultyKey, EventType } from "types.d";
 import { GridSize, MimeSize } from "./enums.ts";
 import { gameReducer, initialState } from "./gameReducer.ts";
 import { useScoreboard } from "./hooks/useScoreboard.ts";
+import { useWindowSize } from "./hooks/useWindowSize.ts";
 import gameOverImage from "./images/mime_color.png";
 import Scoreboard from "./Scoreboard";
 import Square from "./Square";
 import useInterval from "./useInterval";
-import { SQUARE_SIDE } from "./utils/gameLogic.ts";
+import { computeSquareSide } from "./utils/responsive.ts";
 import "App.css";
 
 // Interval delay of the timer. Defaults to 1s (1000ms)
@@ -75,6 +76,12 @@ function App() {
   const { game, boardSize, status, numFlags, playTime, showRules, score } =
     state;
 
+  const { width: viewportWidth } = useWindowSize();
+  const squareSide = useMemo(
+    () => computeSquareSide(viewportWidth, boardSize),
+    [viewportWidth, boardSize],
+  );
+
   const { getScores, isHighScore, addScore } = useScoreboard();
   const [showScoreboard, setShowScoreboard] = useState(false);
   const [playerName, setPlayerName] = useState("");
@@ -106,11 +113,17 @@ function App() {
 
   const handleRestart = useCallback(
     (mimes: MimeSize = MimeSize.S, size: GridSize = GridSize.S): void => {
-      dispatch({ type: "START_GAME", boardSize: size, numMimes: mimes });
+      const newSquareSide = computeSquareSide(viewportWidth, size);
+      dispatch({
+        type: "START_GAME",
+        boardSize: size,
+        numMimes: mimes,
+        squareSide: newSquareSide,
+      });
       setPlayerName("");
       setScoreSubmitted(false);
     },
-    [],
+    [viewportWidth],
   );
 
   useInterval(
@@ -122,9 +135,20 @@ function App() {
 
   useEffect(() => {
     if (status === "waitingStart" && boardSize > 0) {
-      dispatch({ type: "INIT_BOARD" });
+      dispatch({ type: "INIT_BOARD", squareSide });
     }
-  }, [status, boardSize]);
+  }, [status, boardSize, squareSide]);
+
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(".board-scroll")) {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => document.removeEventListener("contextmenu", handleContextMenu);
+  }, []);
 
   const gameEntries = useMemo(
     () => Array.from(game ? game.entries() : []),
@@ -134,16 +158,19 @@ function App() {
   return (
     <div
       className="container"
-      style={{ minWidth: `${String(SQUARE_SIDE * boardSize)}px` }}
+      style={{ maxWidth: `${squareSide * boardSize + 32}px` }}
     >
       {showRules ? (
         <div className="overlay">
           <div className="content">
             <h4>How to Play</h4>
             <ol>
-              <li>Left click to open a space</li>
-              <li>Right click to flag a space</li>
-              <li>Double click to open all adjacent un-flagged spaces</li>
+              <li>Click or tap to open a space</li>
+              <li>Right-click or long-press to flag a space</li>
+              <li>
+                Double-click or double-tap to open all adjacent un-flagged
+                spaces
+              </li>
             </ol>
             <div className="buttons">
               <button
@@ -211,63 +238,65 @@ function App() {
           </div>
         </div>
       ) : null}
-      <h4>
-        Mimesweeper{" "}
-        <button
-          type="button"
-          onClick={() => {
-            dispatch({ type: "TOGGLE_RULES" });
-          }}
+      <header className="game-header">
+        <h1 className="game-title">Mimesweeper</h1>
+        <nav className="game-nav">
+          <button
+            type="button"
+            onClick={() => {
+              dispatch({ type: "TOGGLE_RULES" });
+            }}
+          >
+            How to play
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowScoreboard(true);
+            }}
+          >
+            Scoreboard
+          </button>
+        </nav>
+        <div className="game-stats">
+          <span>Play time: {playTime}s</span>
+          <span>Score: {score}</span>
+          <span>
+            Flags Remaining: {numFlags < 0 ? "No more left!" : numFlags}
+          </span>
+        </div>
+      </header>
+      <div className="mimes" style={{ width: `${squareSide * boardSize}px` }} />
+      <div className="board-scroll">
+        <Stage
+          width={squareSide * boardSize}
+          height={squareSide * boardSize}
+          className="stage"
+          data-test-id="stage"
         >
-          How to play
-        </button>{" "}
-        <button
-          type="button"
-          onClick={() => {
-            setShowScoreboard(true);
-          }}
-        >
-          Scoreboard
-        </button>
-      </h4>
-      <h4>
-        <small>
-          Play time: {playTime}s | Score: {score} | Flags Remaining:{" "}
-          {numFlags < 0 ? "No more left!" : numFlags}
-        </small>
-      </h4>
-      <div
-        className="mimes"
-        style={{ width: `${String(SQUARE_SIDE * boardSize)}px` }}
-      />
-      <Stage
-        width={SQUARE_SIDE * boardSize}
-        height={SQUARE_SIDE * boardSize}
-        className="stage"
-        data-test-id="stage"
-      >
-        <Layer>
-          {gameEntries.map(([key, square]) => (
-            <Square
-              key={key}
-              coOrd={key}
-              x={square.x}
-              y={square.y}
-              size={SQUARE_SIDE}
-              mime={square.mime}
-              adjacentMimes={square.adjacentMimes}
-              opened={square.opened}
-              flagged={square.flagged}
-              clickedMime={square.clickedMime}
-              wrongFlag={square.wrongFlag}
-              isGameOver={isGameOver}
-              onSelect={handleSquareSelect}
-              onRightClick={handleSquareSelect}
-              onDoubleClick={handleSquareSelect}
-            />
-          ))}
-        </Layer>
-      </Stage>
+          <Layer>
+            {gameEntries.map(([key, square]) => (
+              <Square
+                key={key}
+                coOrd={key}
+                x={square.x}
+                y={square.y}
+                size={squareSide}
+                mime={square.mime}
+                adjacentMimes={square.adjacentMimes}
+                opened={square.opened}
+                flagged={square.flagged}
+                clickedMime={square.clickedMime}
+                wrongFlag={square.wrongFlag}
+                isGameOver={isGameOver}
+                onSelect={handleSquareSelect}
+                onRightClick={handleSquareSelect}
+                onDoubleClick={handleSquareSelect}
+              />
+            ))}
+          </Layer>
+        </Stage>
+      </div>
       <p style={{ marginTop: "1rem" }}>Restart?</p>
       <div className="buttons">
         <DifficultyButtons onRestart={handleRestart} />

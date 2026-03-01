@@ -21,11 +21,17 @@ export interface GameState {
   playTime: number;
   score: number;
   showRules: boolean;
+  squareSide: number;
 }
 
 export type GameAction =
-  | { type: "START_GAME"; boardSize: GridSize; numMimes: MimeSize }
-  | { type: "INIT_BOARD" }
+  | {
+      type: "START_GAME";
+      boardSize: GridSize;
+      numMimes: MimeSize;
+      squareSide: number;
+    }
+  | { type: "INIT_BOARD"; squareSide: number }
   | { type: "SQUARE_CLICK"; coordinate: Coordinate }
   | { type: "SQUARE_DOUBLE_CLICK"; coordinate: Coordinate }
   | { type: "SQUARE_RIGHT_CLICK"; coordinate: Coordinate }
@@ -42,6 +48,7 @@ export const initialState: GameState = {
   playTime: 0,
   score: 0,
   showRules: false,
+  squareSide: SQUARE_SIDE,
 };
 
 function cloneGame(
@@ -81,6 +88,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         numOpenSpaces: 0,
         playTime: 0,
         score: getBaseScore(action.boardSize),
+        squareSide: action.squareSide,
       };
 
     case "INIT_BOARD": {
@@ -89,7 +97,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       return {
         ...state,
-        game: newGame(state.boardSize, SQUARE_SIDE),
+        squareSide: action.squareSide,
+        game: newGame(state.boardSize, action.squareSide),
       };
     }
 

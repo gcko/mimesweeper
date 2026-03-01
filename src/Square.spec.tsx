@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { Coordinate, EventType, GameSquare } from "types";
 import Square from "./Square";
 
@@ -6,8 +6,17 @@ import Square from "./Square";
 vi.mock("react-konva", () => ({
   // biome-ignore lint/suspicious/noExplicitAny: test mock requires flexible typing
   Group: (props: any) => {
-    const { onClick, onContextMenu, onDblClick, onTap, onDblTap, children } =
-      props;
+    const {
+      onClick,
+      onContextMenu,
+      onDblClick,
+      onTap,
+      onDblTap,
+      onTouchStart,
+      onTouchMove,
+      onTouchEnd,
+      children,
+    } = props;
     return (
       // biome-ignore lint/a11y/useKeyWithClickEvents: test mock for Konva canvas events
       // biome-ignore lint/a11y/noStaticElementInteractions: test mock for Konva canvas events
@@ -28,14 +37,25 @@ vi.mock("react-konva", () => ({
             onDblClick({ evt: e.nativeEvent });
           }
         }}
-        onTouchEnd={() => {
-          if (onTap) {
+        onTouchEnd={(e) => {
+          if (typeof onTouchEnd === "function") {
+            onTouchEnd({ evt: e.nativeEvent });
+          }
+          if (typeof onTap === "function") {
             onTap();
           }
         }}
-        onTouchStart={() => {
-          if (onDblTap) {
+        onTouchStart={(e: React.TouchEvent) => {
+          if (typeof onDblTap === "function") {
             onDblTap();
+          }
+          if (typeof onTouchStart === "function") {
+            onTouchStart({ evt: e.nativeEvent });
+          }
+        }}
+        onTouchMove={(e: React.TouchEvent) => {
+          if (typeof onTouchMove === "function") {
+            onTouchMove({ evt: e.nativeEvent });
           }
         }}
       >
@@ -245,6 +265,68 @@ describe("Square", () => {
     test("cleans up without error", () => {
       const { unmount } = renderSquare({ opened: true });
       expect(() => unmount()).not.toThrow();
+    });
+  });
+
+  describe("long-press to flag", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    test("long-press triggers right-click handler", () => {
+      const onRightClick = vi.fn();
+      renderSquare({ onRightClick });
+
+      const group = screen.getByTestId("konva-group");
+      fireEvent.touchStart(group, {
+        touches: [{ clientX: 10, clientY: 10 }],
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(onRightClick).toHaveBeenCalledWith("0|0", "contextmenu");
+    });
+
+    test("short tap does not trigger flag", () => {
+      const onRightClick = vi.fn();
+      renderSquare({ onRightClick });
+
+      const group = screen.getByTestId("konva-group");
+      fireEvent.touchStart(group, {
+        touches: [{ clientX: 10, clientY: 10 }],
+      });
+      fireEvent.touchEnd(group);
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(onRightClick).not.toHaveBeenCalled();
+    });
+
+    test("moving finger cancels long-press", () => {
+      const onRightClick = vi.fn();
+      renderSquare({ onRightClick });
+
+      const group = screen.getByTestId("konva-group");
+      fireEvent.touchStart(group, {
+        touches: [{ clientX: 10, clientY: 10 }],
+      });
+      fireEvent.touchMove(group, {
+        touches: [{ clientX: 30, clientY: 30 }],
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(onRightClick).not.toHaveBeenCalled();
     });
   });
 });
