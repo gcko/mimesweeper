@@ -224,31 +224,34 @@ function App() {
           </div>
         </div>
       ) : null}
-      <h4>
-        Mimesweeper{" "}
-        <button
-          type="button"
-          onClick={() => {
-            dispatch({ type: "TOGGLE_RULES" });
-          }}
-        >
-          How to play
-        </button>{" "}
-        <button
-          type="button"
-          onClick={() => {
-            setShowScoreboard(true);
-          }}
-        >
-          Scoreboard
-        </button>
-      </h4>
-      <h4>
-        <small>
-          Play time: {playTime}s | Score: {score} | Flags Remaining:{" "}
-          {numFlags < 0 ? "No more left!" : numFlags}
-        </small>
-      </h4>
+      <header className="game-header">
+        <h1 className="game-title">Mimesweeper</h1>
+        <nav className="game-nav">
+          <button
+            type="button"
+            onClick={() => {
+              dispatch({ type: "TOGGLE_RULES" });
+            }}
+          >
+            How to play
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowScoreboard(true);
+            }}
+          >
+            Scoreboard
+          </button>
+        </nav>
+        <div className="game-stats">
+          <span>Play time: {playTime}s</span>
+          <span>Score: {score}</span>
+          <span>
+            Flags Remaining: {numFlags < 0 ? "No more left!" : numFlags}
+          </span>
+        </div>
+      </header>
       <div className="mimes" style={{ width: `${squareSide * boardSize}px` }} />
       <Stage
         width={squareSide * boardSize}

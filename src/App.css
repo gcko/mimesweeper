@@ -177,6 +177,34 @@
   max-width: 10rem;
 }
 
+.game-header {
+  padding: 0.5rem 0;
+}
+
+.game-title {
+  color: var(--white);
+  font-size: clamp(0.8rem, 3vw, 1.5rem);
+  margin: 0.5rem 0;
+}
+
+.game-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.game-stats {
+  color: var(--white);
+  font-size: clamp(0.45rem, 1.8vw, 0.8rem);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
 /* Mobile: < 768px */
 @media (max-width: 767px) {
   .container {
@@ -203,6 +231,15 @@
     grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
     padding: 0 0.5rem;
+  }
+
+  .game-stats {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .game-nav {
+    gap: 0.25rem;
   }
 
   .container .scoreboard-tabs {
