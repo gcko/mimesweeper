@@ -14,7 +14,8 @@
     "konva": "^10.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-konva": "^19.0.3"
+    "react-konva": "^19.0.3",
+    "use-image": "^1.1.4"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.4",
@@ -29,6 +30,7 @@
     "happy-dom": "^20.7.0",
     "husky": "^9.1.7",
     "is-ci": "^4.1.0",
+    "markdownlint-cli2": "^0.21.0",
     "remark-cli": "^12.0.1",
     "remark-lint-list-item-indent": "^4.0.0",
     "remark-lint-list-item-spacing": "^5.0.0",
@@ -38,7 +40,6 @@
     "stylelint": "^17.4.0",
     "stylelint-config-standard": "^40.0.0",
     "typescript": "^5.9.3",
-    "use-image": "^1.1.4",
     "vite": "^7.3.1",
     "vite-plugin-checker": "^0.12.0",
     "vite-tsconfig-paths": "^6.1.1",
@@ -55,8 +56,8 @@
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
-    "lint:markdown": "remark . --quiet --frail",
-    "lint:markdown:fix": "remark . --quiet --frail --output",
+    "lint:markdown": "remark . --quiet --frail && markdownlint-cli2 'docs/plans/*.md' '*.md'",
+    "lint:markdown:fix": "remark . --quiet --frail --output && markdownlint-cli2 --fix 'docs/plans/*.md' '*.md'",
     "prepare": "is-ci || husky"
   },
   "browserslist": {

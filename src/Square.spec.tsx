@@ -64,6 +64,7 @@ vi.mock("use-image", () => ({
 type SquareTestProps = {
   size: number;
   coOrd: Coordinate;
+  isGameOver: boolean;
   onSelect: (coOrd: Coordinate, type: EventType) => void;
   onRightClick: (coOrd: Coordinate, type: EventType) => void;
   onDoubleClick: (coOrd: Coordinate, type: EventType) => void;
@@ -126,7 +127,7 @@ describe("Square", () => {
     });
 
     test("renders with all adjacentMimes values", () => {
-      const values: GameSquare["adjacentMimes"][] = [0, 1, 2, 3, 4, 5, 7, 8];
+      const values: GameSquare["adjacentMimes"][] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
       for (const adj of values) {
         expect(() =>
           renderSquare({ opened: true, adjacentMimes: adj }),

@@ -5,13 +5,11 @@ export interface GameSquare {
   // Does this square contain a mime?
   mime: boolean;
   // Number of adjacent mimes to this square. Can be a range of 0-8
-  adjacentMimes: 0 | 1 | 2 | 3 | 4 | 5 | 7 | 8;
+  adjacentMimes: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   // Has this square been opened?
   opened: boolean;
   // Has this square been flagged as a mime?
   flagged: boolean;
-  // Is the game currently over?
-  isGameOver: boolean;
   // Starting X value of the square
   x: number;
   // Starting Y value of the square

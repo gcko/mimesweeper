@@ -1,105 +1,107 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import { Layer, Stage } from "react-konva";
-import type { Coordinate, EventType, GameSquare, GameStatus } from "types.d";
+import type { Coordinate, EventType } from "types.d";
 import { GridSize, MimeSize } from "./enums.ts";
+import { gameReducer, initialState } from "./gameReducer.ts";
 import gameOverImage from "./images/mime_color.png";
 import Square from "./Square";
 import useInterval from "./useInterval";
-import {
-  isWin,
-  newGame,
-  populateMimes,
-  processDoubleClick,
-  processRightClick,
-  processSquareClick,
-  SQUARE_SIDE,
-} from "./utils/gameLogic.ts";
+import { SQUARE_SIDE } from "./utils/gameLogic.ts";
 import "App.css";
 
 // Interval delay of the timer. Defaults to 1s (1000ms)
 const timeDelay = 1000; // 1 second
 
+interface DifficultyButtonsProps {
+  onRestart: (mimes: MimeSize, size: GridSize) => void;
+}
+
+function DifficultyButtons({ onRestart }: DifficultyButtonsProps) {
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          onRestart(MimeSize.S, GridSize.S);
+        }}
+      >
+        Small game
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          onRestart(MimeSize.M, GridSize.M);
+        }}
+      >
+        Medium game
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          onRestart(MimeSize.L, GridSize.L);
+        }}
+      >
+        Large game
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          onRestart(MimeSize.XL, GridSize.XL);
+        }}
+      >
+        XL game
+      </button>
+    </>
+  );
+}
+
 function App() {
-  const [game, setGame] = useState<Map<Coordinate, GameSquare> | null>(null);
-  const [boardSize, setBoardSize] = useState(GridSize.S);
-  const [status, setStatus] = useState<GameStatus>("waitingStart");
-  const [numMimes, setNumMimes] = useState(MimeSize.S);
-  const [numFlags, setNumFlags] = useState<number>(MimeSize.S);
-  // biome-ignore lint/correctness/noUnusedVariables: state setter used internally
-  const [numOpenSpaces, setNumOpenSpaces] = useState(0);
-  const [playTime, setPlayTime] = useState(0);
-  const [showRules, setShowRules] = useState(false);
+  const [state, dispatch] = useReducer(gameReducer, initialState);
+  const { game, boardSize, status, numFlags, playTime, showRules } = state;
 
-  const handleSquareSelect = (coOrd: Coordinate, type: EventType): void => {
-    let nextStateGame: Map<Coordinate, GameSquare> | null = game;
-    if (status === "waitingStart" && game) {
-      nextStateGame = populateMimes(
-        Array.from(game.entries()),
-        numMimes,
-        boardSize,
-        coOrd,
-      );
-      setStatus(() => "inProgress");
-    }
-    const square = game?.get(coOrd);
-    if (nextStateGame && square) {
-      if (type === "contextmenu") {
-        const flagDelta = processRightClick(square);
-        if (flagDelta !== 0) {
-          setNumFlags((prev) => prev + flagDelta);
-        }
-      } else if (type === "click") {
-        const result = processSquareClick(coOrd, nextStateGame, square);
-        if (result.lost) {
-          setStatus("gameOverLost");
-        } else {
-          setNumOpenSpaces((prev) => {
-            const newCount = prev + result.openedCount;
-            if (isWin(numMimes, newCount, boardSize)) {
-              setStatus("gameOverWon");
-            }
-            return newCount;
-          });
-        }
-      } else {
-        const result = processDoubleClick(coOrd, nextStateGame, square);
-        if (result.lost) {
-          setStatus("gameOverLost");
-        }
-        setNumOpenSpaces((prev) => {
-          const newCount = prev + result.openedCount;
-          if (isWin(numMimes, newCount, boardSize)) {
-            setStatus("gameOverWon");
-          }
-          return newCount;
-        });
+  const isGameOver = status === "gameOverLost" || status === "gameOverWon";
+
+  const handleSquareSelect = useCallback(
+    (coOrd: Coordinate, type: EventType): void => {
+      switch (type) {
+        case "click":
+          dispatch({ type: "SQUARE_CLICK", coordinate: coOrd });
+          break;
+        case "contextmenu":
+          dispatch({ type: "SQUARE_RIGHT_CLICK", coordinate: coOrd });
+          break;
+        case "dblclick":
+          dispatch({ type: "SQUARE_DOUBLE_CLICK", coordinate: coOrd });
+          break;
       }
-      nextStateGame.set(coOrd, square);
-      setGame(() => new Map(nextStateGame));
-    }
-  };
+    },
+    [],
+  );
 
-  function restart(mimes = MimeSize.S, size: GridSize = GridSize.S): void {
-    setStatus("waitingStart");
-    setNumMimes(mimes);
-    setNumFlags(mimes);
-    setNumOpenSpaces(0);
-    setPlayTime(0);
-    setBoardSize(size);
-  }
+  const handleRestart = useCallback(
+    (mimes: MimeSize = MimeSize.S, size: GridSize = GridSize.S): void => {
+      dispatch({ type: "START_GAME", boardSize: size, numMimes: mimes });
+    },
+    [],
+  );
 
   useInterval(
     () => {
-      setPlayTime(playTime + 1);
+      dispatch({ type: "TICK" });
     },
     status === "inProgress" ? timeDelay : null,
   );
 
   useEffect(() => {
-    if (status === "waitingStart") {
-      setGame(() => newGame(boardSize, SQUARE_SIDE));
+    if (status === "waitingStart" && boardSize > 0) {
+      dispatch({ type: "INIT_BOARD" });
     }
   }, [status, boardSize]);
+
+  const gameEntries = useMemo(
+    () => Array.from(game ? game.entries() : []),
+    [game],
+  );
 
   return (
     <div
@@ -119,7 +121,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => {
-                  setShowRules(false);
+                  dispatch({ type: "TOGGLE_RULES" });
                 }}
               >
                 Let&apos;s play!
@@ -127,10 +129,8 @@ function App() {
             </div>
           </div>
         </div>
-      ) : (
-        ""
-      )}
-      {["gameOverLost", "gameOverWon"].includes(status) ? (
+      ) : null}
+      {isGameOver ? (
         <div className="overlay">
           <div className="content">
             <h4>
@@ -143,50 +143,17 @@ function App() {
             />
             <p>New Game?</p>
             <div className="buttons">
-              <button
-                type="button"
-                onClick={() => {
-                  restart(MimeSize.S, GridSize.S);
-                }}
-              >
-                Small game
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  restart(MimeSize.M, GridSize.M);
-                }}
-              >
-                Medium game
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  restart(MimeSize.L, GridSize.L);
-                }}
-              >
-                Large game
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  restart(MimeSize.XL, GridSize.XL);
-                }}
-              >
-                XL game
-              </button>
+              <DifficultyButtons onRestart={handleRestart} />
             </div>
           </div>
         </div>
-      ) : (
-        ""
-      )}
+      ) : null}
       <h4>
         Mimesweeper{" "}
         <button
           type="button"
           onClick={() => {
-            setShowRules(true);
+            dispatch({ type: "TOGGLE_RULES" });
           }}
         >
           How to play
@@ -209,7 +176,7 @@ function App() {
         data-test-id="stage"
       >
         <Layer>
-          {Array.from(game ? game.entries() : []).map(([key, square]) => (
+          {gameEntries.map(([key, square]) => (
             <Square
               key={key}
               coOrd={key}
@@ -220,7 +187,7 @@ function App() {
               adjacentMimes={square.adjacentMimes}
               opened={square.opened}
               flagged={square.flagged}
-              isGameOver={status === "gameOverLost" || status === "gameOverWon"}
+              isGameOver={isGameOver}
               onSelect={handleSquareSelect}
               onRightClick={handleSquareSelect}
               onDoubleClick={handleSquareSelect}
@@ -230,38 +197,7 @@ function App() {
       </Stage>
       <p style={{ marginTop: "1rem" }}>Restart?</p>
       <div className="buttons">
-        <button
-          type="button"
-          onClick={() => {
-            restart(MimeSize.S, GridSize.S);
-          }}
-        >
-          Small game
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            restart(MimeSize.M, GridSize.M);
-          }}
-        >
-          Medium game
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            restart(MimeSize.L, GridSize.L);
-          }}
-        >
-          Large game
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            restart(MimeSize.XL, GridSize.XL);
-          }}
-        >
-          XL game
-        </button>
+        <DifficultyButtons onRestart={handleRestart} />
       </div>
     </div>
   );

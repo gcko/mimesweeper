@@ -53,7 +53,6 @@ describe("newGame", () => {
       expect(square.opened).toBe(false);
       expect(square.flagged).toBe(false);
       expect(square.adjacentMimes).toBe(0);
-      expect(square.isGameOver).toBe(false);
     }
   });
 
@@ -785,6 +784,66 @@ describe("processDoubleClick", () => {
 });
 
 // ─── isWin ────────────────────────────────────────────────────────────────────
+
+/**
+ * Mimesweeper is a recreation of classic Minesweeper. The ONLY
+ * difference is the visual use of "mimes" as a gag. All game
+ * logic must follow standard Minesweeper rules exactly:
+ *
+ * - Clicking a zero reveals all connected non-mine squares (flood fill)
+ * - Flood fill NEVER reveals mine squares
+ * - Mine squares are only revealed when you click one (game over)
+ * - First click is always safe (mine is never placed there)
+ * - Numbers show count of adjacent mines (1-8)
+ * - Flagging marks a suspected mine; flagged squares can't be opened
+ */
+describe("Minesweeper rules — flood fill never opens mines", () => {
+  test("open-mode updateAdjacent skips mine squares", () => {
+    const board = createTestBoard(3);
+    // Place a mine at 1|1
+    const mine = getSquare(board, coOrdKey(1, 1));
+    mine.mime = true;
+
+    // Set center square (0|0) as the origin with adjacentMimes=0
+    // to trigger recursive flood fill
+    const origin = getSquare(board, coOrdKey(0, 0));
+    origin.adjacentMimes = 0 as const;
+
+    updateAdjacent({
+      location: coOrdKey(0, 0),
+      upcomingGame: board,
+      type: AdjacentUpdate.open,
+    });
+
+    // Mine at 1|1 must remain closed
+    expect(mine.opened).toBe(false);
+  });
+
+  test("processSquareClick on a zero square does not reveal mines", () => {
+    const board = createTestBoard(3);
+    // Place mine at 2|2
+    const mine = getSquare(board, coOrdKey(2, 2));
+    mine.mime = true;
+
+    // Neighbors of 2|2 get adjacentMimes=1
+    for (const [k, sq] of board) {
+      if (k !== coOrdKey(2, 2)) {
+        // Approximate: only direct neighbors should be 1
+        const [x, y] = k.split("|").map(Number);
+        if (Math.abs(x - 2) <= 1 && Math.abs(y - 2) <= 1) {
+          sq.adjacentMimes = 1 as const;
+        }
+      }
+    }
+
+    const origin = getSquare(board, coOrdKey(0, 0));
+    const result = processSquareClick(coOrdKey(0, 0), board, origin);
+
+    expect(result.lost).toBe(false);
+    // Mine must remain closed
+    expect(mine.opened).toBe(false);
+  });
+});
 
 describe("isWin", () => {
   test("returns true when numMimes + numOpenSpaces equals boardSize squared", () => {

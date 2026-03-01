@@ -15,16 +15,13 @@ export function generateRandomCoOrd(boardSize: number): Coordinate {
 
 // Given a Coordinate, return the values as an array of [x, y]
 export function getCoOrd(location: Coordinate): [number, number] {
-  if (
-    Number.isNaN(parseInt(location.slice(0, location.indexOf("|")), 10)) ||
-    Number.isNaN(parseInt(location.slice(location.indexOf("|") + 1), 10))
-  ) {
+  const [xStr, yStr] = location.split("|");
+  const x = parseInt(xStr, 10);
+  const y = parseInt(yStr, 10);
+  if (Number.isNaN(x) || Number.isNaN(y)) {
     throw new Error(
       `Unable to correctly parse x and y coordinates from given location string: "${location}"`,
     );
   }
-  return [
-    parseInt(location.slice(0, location.indexOf("|")), 10),
-    parseInt(location.slice(location.indexOf("|") + 1), 10),
-  ];
+  return [x, y];
 }
