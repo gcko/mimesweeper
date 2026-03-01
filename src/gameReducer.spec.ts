@@ -1,4 +1,4 @@
-import type { Coordinate } from "types.d";
+import type { Coordinate, GameSquare } from "types.d";
 import { GridSize, MimeSize } from "./enums.ts";
 import {
   type GameAction,
@@ -684,6 +684,166 @@ describe("gameReducer", () => {
 
       expect(result.game).not.toBe(state.game);
       expect(result.game).toBeInstanceOf(Map);
+    });
+  });
+
+  /**
+   * Mimesweeper is a recreation of classic Minesweeper. The ONLY
+   * difference is the visual use of "mimes" as a gag. All game
+   * logic must follow standard Minesweeper rules exactly.
+   */
+  describe("Minesweeper rules", () => {
+    test("first click never lands on a mine (safe start)", () => {
+      const board = createTestBoard(5);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        boardSize: GridSize.XS,
+        numMimes: MimeSize.XS,
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_CLICK",
+        coordinate: "2|2" as Coordinate,
+      });
+
+      const clickedSquare = result.game?.get("2|2" as Coordinate);
+      expect(clickedSquare?.mime).toBe(false);
+      expect(clickedSquare?.opened).toBe(true);
+      expect(result.status).not.toBe("gameOverLost");
+    });
+
+    test("flood fill from a zero square never opens mine squares", () => {
+      const board = createTestBoard(5);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        boardSize: GridSize.XS,
+        numMimes: MimeSize.XS,
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_CLICK",
+        coordinate: "2|2" as Coordinate,
+      });
+
+      // No mine square should ever be opened during flood fill.
+      // In Minesweeper, mines are only revealed on game over.
+      expect(result.game).not.toBeNull();
+      for (const [, square] of result.game as Map<Coordinate, GameSquare>) {
+        if (square.mime) {
+          expect(square.opened).toBe(false);
+        }
+      }
+    });
+
+    test("first click does not mutate original state (StrictMode safe)", () => {
+      const board = createTestBoard(5);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        boardSize: GridSize.XS,
+        numMimes: MimeSize.XS,
+      };
+
+      // Snapshot original state values
+      const originalSquares = new Map<Coordinate, GameSquare>();
+      for (const [k, v] of board) {
+        originalSquares.set(k, { ...v });
+      }
+
+      gameReducer(state, {
+        type: "SQUARE_CLICK",
+        coordinate: "2|2" as Coordinate,
+      });
+
+      // Verify state.game was not mutated
+      for (const [k, original] of originalSquares) {
+        const current = board.get(k);
+        expect(current?.mime).toBe(original.mime);
+        expect(current?.opened).toBe(original.opened);
+        expect(current?.adjacentMimes).toBe(original.adjacentMimes);
+        expect(current?.flagged).toBe(original.flagged);
+      }
+    });
+
+    test("double-invoking first click produces consistent results (StrictMode)", () => {
+      const board = createTestBoard(5);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        boardSize: GridSize.XS,
+        numMimes: MimeSize.XS,
+      };
+
+      // Simulate StrictMode: call reducer twice with same state + action
+      const action: GameAction = {
+        type: "SQUARE_CLICK",
+        coordinate: "2|2" as Coordinate,
+      };
+
+      const result1 = gameReducer(state, action);
+      const result2 = gameReducer(state, action);
+
+      expect(result1.game).not.toBeNull();
+      expect(result2.game).not.toBeNull();
+      const game1 = result1.game as Map<Coordinate, GameSquare>;
+      const game2 = result2.game as Map<Coordinate, GameSquare>;
+
+      // Both results should have the same number of mines
+      let mineCount1 = 0;
+      let mineCount2 = 0;
+      for (const [, sq] of game1) {
+        if (sq.mime) mineCount1++;
+      }
+      for (const [, sq] of game2) {
+        if (sq.mime) mineCount2++;
+      }
+      expect(mineCount1).toBe(MimeSize.XS);
+      expect(mineCount2).toBe(MimeSize.XS);
+
+      // Neither result should have opened mines
+      for (const [, sq] of game1) {
+        if (sq.mime) expect(sq.opened).toBe(false);
+      }
+      for (const [, sq] of game2) {
+        if (sq.mime) expect(sq.opened).toBe(false);
+      }
+    });
+
+    test("only clicking a mine triggers game over (not flood fill)", () => {
+      const board = createTestBoard(3);
+      // Manually set up a board with a known mine
+      const mineCoord = "1|1" as Coordinate;
+      const mineSquare = board.get(mineCoord);
+      expect(mineSquare).toBeDefined();
+      if (mineSquare) {
+        mineSquare.mime = true;
+      }
+
+      // Set adjacentMimes on neighbors
+      for (const [k, sq] of board) {
+        if (k !== mineCoord) {
+          sq.adjacentMimes = 1 as GameSquare["adjacentMimes"];
+        }
+      }
+
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "inProgress",
+      };
+
+      // Click a non-mine square — should not trigger game over
+      const result = gameReducer(state, {
+        type: "SQUARE_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      expect(result.status).toBe("inProgress");
+      // Mine should remain unopened
+      const mine = result.game?.get(mineCoord);
+      expect(mine?.opened).toBe(false);
     });
   });
 

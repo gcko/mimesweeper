@@ -91,8 +91,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       // First click: populate mines and start game
       if (state.status === "waitingStart") {
+        // Deep-clone entries so populateMimes mutations don't leak
+        // back into state.game (critical for React StrictMode
+        // which double-invokes the reducer).
+        const clonedEntries: [Coordinate, GameSquare][] = Array.from(
+          state.game.entries(),
+        ).map(([k, v]) => [k, { ...v }]);
         nextGame = populateMimes(
-          Array.from(state.game.entries()),
+          clonedEntries,
           state.numMimes,
           state.boardSize,
           action.coordinate,
