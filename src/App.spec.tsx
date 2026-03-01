@@ -400,6 +400,132 @@ describe("App", () => {
     });
   });
 
+  describe("score and scoreboard", () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    test("displays score in header", () => {
+      render(<App />);
+      expect(screen.getByText(/Score: 0/i)).toBeInTheDocument();
+    });
+
+    test("displays initial score after starting a game", () => {
+      render(<App />);
+      const medBtns = screen.getAllByText(/Medium game/i);
+      act(() => {
+        medBtns[medBtns.length - 1].click();
+      });
+      expect(screen.getByText(/Score: 6000/i)).toBeInTheDocument();
+    });
+
+    test("Scoreboard button opens scoreboard overlay", () => {
+      render(<App />);
+      act(() => {
+        screen.getByText("Scoreboard").click();
+      });
+      expect(screen.getByText("Top 10 Scores")).toBeInTheDocument();
+    });
+
+    test("Scoreboard overlay can be closed", () => {
+      render(<App />);
+      act(() => {
+        screen.getByText("Scoreboard").click();
+      });
+      act(() => {
+        screen.getByText("Close").click();
+      });
+      expect(screen.queryByText("Top 10 Scores")).not.toBeInTheDocument();
+    });
+
+    test("shows final score in win overlay", () => {
+      render(<App />);
+
+      // Start a Small game to set score to 1000
+      const smallBtns = screen.getAllByText(/Small game/i);
+      act(() => {
+        smallBtns[smallBtns.length - 1].click();
+      });
+
+      vi.spyOn(gameLogic, "populateMimes").mockImplementation(
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
+      );
+      vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+        openedCount: 90,
+        lost: false,
+      });
+      vi.spyOn(gameLogic, "isWin").mockReturnValue(true);
+
+      act(() => {
+        fireEvent.click(screen.getByTestId("square-0|0"));
+      });
+
+      const scoreElements = screen.getAllByText(/Score: 1000/);
+      expect(scoreElements.length).toBeGreaterThanOrEqual(1);
+
+      vi.restoreAllMocks();
+    });
+
+    test("shows high score entry form when qualifying", () => {
+      render(<App />);
+
+      // Start a Small game to set score to 1000
+      const smallBtns = screen.getAllByText(/Small game/i);
+      act(() => {
+        smallBtns[smallBtns.length - 1].click();
+      });
+
+      vi.spyOn(gameLogic, "populateMimes").mockImplementation(
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
+      );
+      vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+        openedCount: 90,
+        lost: false,
+      });
+      vi.spyOn(gameLogic, "isWin").mockReturnValue(true);
+
+      act(() => {
+        fireEvent.click(screen.getByTestId("square-0|0"));
+      });
+
+      expect(screen.getByText("New High Score!")).toBeInTheDocument();
+      expect(screen.getByPlaceholderText("Your name")).toBeInTheDocument();
+
+      vi.restoreAllMocks();
+    });
+
+    test("submit score button is disabled when name is empty", () => {
+      render(<App />);
+
+      // Start a Small game to set score to 1000
+      const smallBtns = screen.getAllByText(/Small game/i);
+      act(() => {
+        smallBtns[smallBtns.length - 1].click();
+      });
+
+      vi.spyOn(gameLogic, "populateMimes").mockImplementation(
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
+      );
+      vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
+        openedCount: 90,
+        lost: false,
+      });
+      vi.spyOn(gameLogic, "isWin").mockReturnValue(true);
+
+      act(() => {
+        fireEvent.click(screen.getByTestId("square-0|0"));
+      });
+
+      const submitBtn = screen.getByText("Submit Score");
+      expect(submitBtn).toBeDisabled();
+
+      vi.restoreAllMocks();
+    });
+  });
+
   describe("game over overlay", () => {
     function triggerGameOver() {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
