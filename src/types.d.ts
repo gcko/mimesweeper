@@ -44,3 +44,12 @@ export interface FlaggedAdjacentProps {
   location: Coordinate;
   upcomingGame: Map<Coordinate, GameSquare>;
 }
+
+export interface ScoreEntry {
+  name: string;
+  score: number;
+}
+
+export type DifficultyKey = "S" | "M" | "L" | "XL";
+
+export type ScoreboardData = Record<DifficultyKey, ScoreEntry[]>;
