@@ -114,26 +114,20 @@ export function newGame(
   size: number,
   squareSide: number,
 ): Map<Coordinate, GameSquare> {
-  const entries: [Coordinate, GameSquare][] = Array.from({
-    length: size,
-  }).reduce((prevValue: [Coordinate, GameSquare][], _, xIndex) => {
-    const currentList: [Coordinate, GameSquare][] = Array.from({
-      length: size,
-    }).map((__, yIndex) => [
-      coOrdKey(xIndex, yIndex),
-      {
+  const game = new Map<Coordinate, GameSquare>();
+  for (let x = 0; x < size; x++) {
+    for (let y = 0; y < size; y++) {
+      game.set(coOrdKey(x, y), {
         mime: false,
         adjacentMimes: 0,
         opened: false,
         flagged: false,
-        isGameOver: false,
-        x: xIndex * squareSide,
-        y: yIndex * squareSide,
-      },
-    ]);
-    return prevValue.concat(currentList);
-  }, []);
-  return new Map<Coordinate, GameSquare>(entries);
+        x: x * squareSide,
+        y: y * squareSide,
+      });
+    }
+  }
+  return game;
 }
 
 /**

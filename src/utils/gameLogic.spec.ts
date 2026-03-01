@@ -53,7 +53,6 @@ describe("newGame", () => {
       expect(square.opened).toBe(false);
       expect(square.flagged).toBe(false);
       expect(square.adjacentMimes).toBe(0);
-      expect(square.isGameOver).toBe(false);
     }
   });
 

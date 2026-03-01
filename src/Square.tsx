@@ -15,6 +15,7 @@ interface SquareProps {
   y: number;
   size: number;
   coOrd: Coordinate;
+  isGameOver: boolean;
   onSelect: (coOrd: Coordinate, type: EventType) => void;
   onRightClick: (coOrd: Coordinate, type: EventType) => void;
   onDoubleClick: (coOrd: Coordinate, type: EventType) => void;

@@ -10,8 +10,6 @@ export interface GameSquare {
   opened: boolean;
   // Has this square been flagged as a mime?
   flagged: boolean;
-  // Is the game currently over?
-  isGameOver: boolean;
   // Starting X value of the square
   x: number;
   // Starting Y value of the square

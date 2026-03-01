@@ -9,7 +9,6 @@ export function createTestSquare(
     adjacentMimes: 0,
     opened: false,
     flagged: false,
-    isGameOver: false,
     x: 0,
     y: 0,
     ...overrides,
