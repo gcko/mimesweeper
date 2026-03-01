@@ -310,6 +310,38 @@ describe("gameReducer", () => {
       expect(isWinSpy).not.toHaveBeenCalled();
     });
 
+    test("returns state unchanged when gameOverLost", () => {
+      const board = createTestBoard(3);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "gameOverLost",
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      expect(result).toBe(state);
+    });
+
+    test("returns state unchanged when gameOverWon", () => {
+      const board = createTestBoard(3);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "gameOverWon",
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      expect(result).toBe(state);
+    });
+
     test("returns state unchanged if square not found", () => {
       const board = createTestBoard(3);
       const state: GameState = {
@@ -346,6 +378,28 @@ describe("gameReducer", () => {
 
       expect(result.game).not.toBe(state.game);
       expect(result.game).toBeInstanceOf(Map);
+    });
+
+    test("does not mutate original state.game during inProgress click", () => {
+      const board = createTestBoard(3);
+      const originalSquare = board.get("0|0" as Coordinate);
+      const originalOpened = originalSquare?.opened;
+
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "inProgress",
+      };
+
+      // Use real processSquareClick (no mock) so it mutates
+      gameReducer(state, {
+        type: "SQUARE_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      // Original board's square should not have been mutated
+      const squareAfter = board.get("0|0" as Coordinate);
+      expect(squareAfter?.opened).toBe(originalOpened);
     });
   });
 
@@ -414,6 +468,38 @@ describe("gameReducer", () => {
       });
 
       expect(result.numFlags).toBe(10);
+    });
+
+    test("returns state unchanged when gameOverLost", () => {
+      const board = createTestBoard(3);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "gameOverLost",
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_RIGHT_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      expect(result).toBe(state);
+    });
+
+    test("returns state unchanged when gameOverWon", () => {
+      const board = createTestBoard(3);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "gameOverWon",
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_RIGHT_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      expect(result).toBe(state);
     });
 
     test("returns state unchanged if square not found", () => {
@@ -528,6 +614,38 @@ describe("gameReducer", () => {
       });
 
       expect(result.status).toBe("gameOverWon");
+    });
+
+    test("returns state unchanged when gameOverLost", () => {
+      const board = createTestBoard(3);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "gameOverLost",
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_DOUBLE_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      expect(result).toBe(state);
+    });
+
+    test("returns state unchanged when gameOverWon", () => {
+      const board = createTestBoard(3);
+      const state: GameState = {
+        ...initialState,
+        game: board,
+        status: "gameOverWon",
+      };
+
+      const result = gameReducer(state, {
+        type: "SQUARE_DOUBLE_CLICK",
+        coordinate: "0|0" as Coordinate,
+      });
+
+      expect(result).toBe(state);
     });
 
     test("returns state unchanged if square not found", () => {

@@ -41,6 +41,16 @@ export const initialState: GameState = {
   showRules: false,
 };
 
+function cloneGame(
+  game: Map<Coordinate, GameSquare>,
+): Map<Coordinate, GameSquare> {
+  const clone = new Map<Coordinate, GameSquare>();
+  for (const [k, v] of game) {
+    clone.set(k, { ...v });
+  }
+  return clone;
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_GAME":
@@ -72,8 +82,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "SQUARE_CLICK": {
       if (!state.game) return state;
+      if (state.status === "gameOverLost" || state.status === "gameOverWon") {
+        return state;
+      }
 
-      let nextGame = state.game;
+      let nextGame: Map<Coordinate, GameSquare>;
       let nextStatus: GameStatus = state.status;
 
       // First click: populate mines and start game
@@ -85,6 +98,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           action.coordinate,
         );
         nextStatus = "inProgress";
+      } else {
+        nextGame = cloneGame(state.game);
       }
 
       const square = nextGame.get(action.coordinate);
@@ -108,7 +123,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
-        game: new Map(nextGame),
+        game: nextGame,
         status: nextStatus,
         numOpenSpaces: newOpenSpaces,
       };
@@ -116,8 +131,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "SQUARE_RIGHT_CLICK": {
       if (!state.game) return state;
+      if (state.status === "gameOverLost" || state.status === "gameOverWon") {
+        return state;
+      }
 
-      const nextGame = new Map(state.game);
+      const nextGame = cloneGame(state.game);
       const square = nextGame.get(action.coordinate);
       if (!square) return state;
 
@@ -133,14 +151,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "SQUARE_DOUBLE_CLICK": {
       if (!state.game) return state;
+      if (state.status === "gameOverLost" || state.status === "gameOverWon") {
+        return state;
+      }
 
-      const nextGame = new Map(state.game);
+      const nextGame = cloneGame(state.game);
       const square = nextGame.get(action.coordinate);
       if (!square) return state;
 
       const result = processDoubleClick(action.coordinate, nextGame, square);
 
-      let nextStatus = state.status;
+      let nextStatus: GameStatus = state.status;
       if (result.lost) {
         nextStatus = "gameOverLost";
       }
