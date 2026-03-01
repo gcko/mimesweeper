@@ -5,7 +5,8 @@ import type {
   GameSquare,
 } from "types.d";
 import { AdjacentUpdate } from "../enums.ts";
-import { coOrdKey, generateRandomCoOrd, getCoOrd } from "./coordinates.ts";
+import { coOrdKey, generateRandomCoOrd } from "./coordinates.ts";
+import { getNeighborCoords } from "./neighbors.ts";
 
 export const INITIAL_FAILSAFE = 100;
 export const SQUARE_SIDE = 25;
@@ -27,40 +28,34 @@ export function updateAdjacent({
   type = AdjacentUpdate.mimes,
 }: AdjacentProps): number {
   let count = 0;
-  const [x, y] = getCoOrd(location);
-  Array.of(x - 1, x, x + 1).forEach((xVal) => {
-    Array.of(y - 1, y, y + 1).forEach((yVal) => {
-      if (!(xVal === x && yVal === y)) {
-        const newSquareCoOrds = coOrdKey(xVal, yVal);
-        const square = upcomingGame.get(newSquareCoOrds);
-        if (!square) {
-          return;
-        }
-        if (type === AdjacentUpdate.mimes) {
-          if (!square.mime) {
-            (square as { adjacentMimes: number }).adjacentMimes += 1;
-            upcomingGame.set(newSquareCoOrds, square);
-          }
-        }
-        if (!square.flagged && !square.opened) {
-          if (type === AdjacentUpdate.open && !square.mime) {
-            square.opened = true;
-            count += 1;
-            if (square.adjacentMimes === 0) {
-              count += updateAdjacent({
-                location: newSquareCoOrds,
-                upcomingGame,
-                type: AdjacentUpdate.open,
-              });
-            }
-          } else if (type === AdjacentUpdate.forceOpen) {
-            square.opened = true;
-            count += 1;
-          }
-        }
+  for (const neighborCoord of getNeighborCoords(location)) {
+    const square = upcomingGame.get(neighborCoord);
+    if (!square) {
+      continue;
+    }
+    if (type === AdjacentUpdate.mimes) {
+      if (!square.mime) {
+        (square as { adjacentMimes: number }).adjacentMimes += 1;
+        upcomingGame.set(neighborCoord, square);
       }
-    });
-  });
+    }
+    if (!square.flagged && !square.opened) {
+      if (type === AdjacentUpdate.open && !square.mime) {
+        square.opened = true;
+        count += 1;
+        if (square.adjacentMimes === 0) {
+          count += updateAdjacent({
+            location: neighborCoord,
+            upcomingGame,
+            type: AdjacentUpdate.open,
+          });
+        }
+      } else if (type === AdjacentUpdate.forceOpen) {
+        square.opened = true;
+        count += 1;
+      }
+    }
+  }
   return count;
 }
 
@@ -71,21 +66,15 @@ export function allAdjacentMimesAreFlagged({
 }: FlaggedAdjacentProps): boolean {
   let flaggedAdjacent = 0;
   let adjacentMimes = 0;
-  const [x, y] = getCoOrd(location);
-  Array.of(x - 1, x, x + 1).forEach((xVal) => {
-    Array.of(y - 1, y, y + 1).forEach((yVal) => {
-      if (!(xVal === x && yVal === y)) {
-        const coords = coOrdKey(xVal, yVal);
-        const square = upcomingGame.get(coords);
-        if (square?.mime) {
-          adjacentMimes += 1;
-          if (square.flagged) {
-            flaggedAdjacent += 1;
-          }
-        }
+  for (const neighborCoord of getNeighborCoords(location)) {
+    const square = upcomingGame.get(neighborCoord);
+    if (square?.mime) {
+      adjacentMimes += 1;
+      if (square.flagged) {
+        flaggedAdjacent += 1;
       }
-    });
-  });
+    }
+  }
   return flaggedAdjacent === adjacentMimes;
 }
 
@@ -95,35 +84,29 @@ export function populateMimes(
   boardSize: number,
   currentPieceCoOrds: Coordinate = "-1|-1",
 ): Map<Coordinate, GameSquare> {
-  const mimeLocations: Coordinate[] = [];
-  Array.from({ length: numMimes }).forEach(() => {
-    let potentialMimeLocation: Coordinate = generateRandomCoOrd(boardSize);
-    let failSafe = INITIAL_FAILSAFE;
-    while (
-      (mimeLocations.includes(potentialMimeLocation) && failSafe > 1) ||
-      (potentialMimeLocation === currentPieceCoOrds && failSafe > 1)
-    ) {
-      potentialMimeLocation = generateRandomCoOrd(boardSize);
-      failSafe -= 1;
+  const mimeLocations = new Set<Coordinate>();
+  let failSafe = numMimes * INITIAL_FAILSAFE;
+  while (mimeLocations.size < numMimes && failSafe > 0) {
+    const candidate = generateRandomCoOrd(boardSize);
+    if (candidate !== currentPieceCoOrds) {
+      mimeLocations.add(candidate);
     }
-    mimeLocations.push(potentialMimeLocation);
-  });
+    failSafe -= 1;
+  }
   const upcomingGame = new Map<Coordinate, GameSquare>(entries);
-  mimeLocations
-    .map((mimeLocation) => {
-      const square: GameSquare | undefined = upcomingGame.get(mimeLocation);
-      if (square) {
-        square.mime = true;
-        upcomingGame.set(mimeLocation, square);
-      }
-      return mimeLocation;
-    })
-    .forEach((mimeLocation) => {
-      const square = upcomingGame.get(mimeLocation);
-      if (square) {
-        updateAdjacent({ location: mimeLocation, upcomingGame });
-      }
-    });
+  for (const mimeLocation of mimeLocations) {
+    const square = upcomingGame.get(mimeLocation);
+    if (square) {
+      square.mime = true;
+      upcomingGame.set(mimeLocation, square);
+    }
+  }
+  for (const mimeLocation of mimeLocations) {
+    const square = upcomingGame.get(mimeLocation);
+    if (square) {
+      updateAdjacent({ location: mimeLocation, upcomingGame });
+    }
+  }
   return upcomingGame;
 }
 
