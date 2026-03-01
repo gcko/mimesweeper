@@ -57,7 +57,8 @@ function DifficultyButtons({ onRestart }: DifficultyButtonsProps) {
 
 function App() {
   const [state, dispatch] = useReducer(gameReducer, initialState);
-  const { game, boardSize, status, numFlags, playTime, showRules } = state;
+  const { game, boardSize, status, numFlags, playTime, showRules, score } =
+    state;
 
   const isGameOver = status === "gameOverLost" || status === "gameOverWon";
 
@@ -136,6 +137,9 @@ function App() {
             <h4>
               GAME OVER! You {status === "gameOverLost" ? "Lost :(" : "Won! :)"}
             </h4>
+            {status === "gameOverWon" && (
+              <h2 className="final-score">Score: {score}</h2>
+            )}
             <img
               alt="Game Over!"
               src={gameOverImage}
@@ -161,7 +165,7 @@ function App() {
       </h4>
       <h4>
         <small>
-          Play time: {playTime}s | Flags Remaining:{" "}
+          Play time: {playTime}s | Score: {score} | Flags Remaining:{" "}
           {numFlags < 0 ? "No more left!" : numFlags}
         </small>
       </h4>

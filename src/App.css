@@ -93,3 +93,8 @@
 .container .overlay .content .buttons {
   margin-top: 1rem;
 }
+
+.container .overlay .content .final-score {
+  color: #1bbb00;
+  margin: 1rem 0;
+}
