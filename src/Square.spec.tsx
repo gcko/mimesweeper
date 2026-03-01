@@ -134,6 +134,39 @@ describe("Square", () => {
         ).not.toThrow();
       }
     });
+
+    test("renders revealed mine (not clicked) with white fill and mime image", () => {
+      renderSquare({
+        opened: true,
+        mime: true,
+        isGameOver: true,
+        clickedMime: false,
+      });
+      const rect = screen.getByTestId("konva-rect");
+      expect(rect.dataset.fill).toBe("#FFFFFF");
+      const images = screen.getAllByTestId("konva-image");
+      expect(images.length).toBeGreaterThanOrEqual(1);
+    });
+
+    test("renders clicked mine with red fill", () => {
+      renderSquare({
+        opened: true,
+        mime: true,
+        isGameOver: true,
+        clickedMime: true,
+      });
+      const rect = screen.getByTestId("konva-rect");
+      expect(rect.dataset.fill).toBe("#f80000");
+    });
+
+    test("renders wrong flag with X text", () => {
+      renderSquare({
+        flagged: true,
+        wrongFlag: true,
+        isGameOver: true,
+      });
+      expect(screen.getByText("X")).toBeInTheDocument();
+    });
   });
 
   describe("event handlers", () => {
@@ -195,8 +228,8 @@ describe("Square", () => {
   });
 
   describe("color states", () => {
-    test("opened mine has red fill", () => {
-      renderSquare({ opened: true, mime: true });
+    test("opened clicked mine has red fill", () => {
+      renderSquare({ opened: true, mime: true, clickedMime: true });
       const rect = screen.getByTestId("konva-rect");
       expect(rect.dataset.fill).toBe("#f80000");
     });
