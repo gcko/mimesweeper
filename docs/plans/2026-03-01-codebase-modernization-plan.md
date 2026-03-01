@@ -9,6 +9,7 @@
 **Tech Stack:** React 19, TypeScript 5.8+, Vitest 4, Konva 10, Biome
 
 **Verification command (run after EVERY task):**
+
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
@@ -18,6 +19,7 @@ pnpm test && pnpm run lint && pnpm run type:check
 ### Task 1: Fix `adjacentMimes` type — missing `6`
 
 **Files:**
+
 - Modify: `src/types.d.ts:8`
 - Modify: `src/Square.spec.tsx:129`
 
@@ -44,10 +46,13 @@ Expected: TypeScript error — `6` is not assignable to the union type.
 **Step 3: Fix the type**
 
 In `src/types.d.ts` line 8, change:
+
 ```typescript
 adjacentMimes: 0 | 1 | 2 | 3 | 4 | 5 | 7 | 8;
 ```
+
 to:
+
 ```typescript
 adjacentMimes: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 ```
@@ -57,6 +62,7 @@ adjacentMimes: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass.
 
 **Step 5: Commit**
@@ -71,11 +77,13 @@ git commit -m "Adhoc: BugFix: Add missing 6 to adjacentMimes union type"
 ### Task 2: Move `use-image` to dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Move the dependency**
 
 Run:
+
 ```bash
 pnpm remove use-image && pnpm add use-image
 ```
@@ -85,6 +93,7 @@ pnpm remove use-image && pnpm add use-image
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass. `use-image` now in `dependencies` instead of `devDependencies`.
 
 **Step 3: Commit**
@@ -99,6 +108,7 @@ git commit -m "Adhoc: BugFix: Move use-image from devDependencies to dependencie
 ### Task 3: Simplify `getCoOrd` parsing in coordinates.ts
 
 **Files:**
+
 - Modify: `src/utils/coordinates.ts:17-30`
 - Test: `src/utils/coordinates.spec.ts` (existing tests cover this)
 
@@ -131,6 +141,7 @@ export function getCoOrd(location: Coordinate): [number, number] {
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass — same behavior, cleaner code.
 
 **Step 4: Commit**
@@ -147,6 +158,7 @@ git commit -m "Adhoc: Refactored: Simplify getCoOrd to use split instead of repe
 The `Array.of(x-1, x, x+1).forEach(...)` pattern is duplicated in `updateAdjacent` (line 31-32) and `allAdjacentMimesAreFlagged` (line 75-76). Extract a shared utility.
 
 **Files:**
+
 - Create: `src/utils/neighbors.ts`
 - Create: `src/utils/neighbors.spec.ts`
 - Modify: `src/utils/gameLogic.ts:24-65, 68-90`
@@ -299,6 +311,7 @@ export function allAdjacentMimesAreFlagged({
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All 133+ tests pass.
 
 **Step 7: Commit**
@@ -313,6 +326,7 @@ git commit -m "Adhoc: Refactored: Extract getNeighborCoords utility to DRY up ne
 ### Task 5: Improve `populateMimes` — use Set for deduplication
 
 **Files:**
+
 - Modify: `src/utils/gameLogic.ts:92-128`
 - Test: `src/utils/gameLogic.spec.ts` (existing tests cover this)
 
@@ -364,6 +378,7 @@ export function populateMimes(
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass. No duplicate mines possible now.
 
 **Step 4: Commit**
@@ -378,6 +393,7 @@ git commit -m "Adhoc: Refactored: Use Set in populateMimes to guarantee unique m
 ### Task 6: Clean up Square.tsx — hoist gradient, replace useState+useEffect with useMemo
 
 **Files:**
+
 - Modify: `src/Square.tsx`
 - Test: `src/Square.spec.tsx` (existing tests cover rendering)
 
@@ -541,6 +557,7 @@ export default Square;
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass. Gradient computed once at module load. No more useEffect/useState churn.
 
 **Step 4: Commit**
@@ -557,6 +574,7 @@ git commit -m "Adhoc: Refactored: Hoist gradient to module scope, replace useSta
 This is the central refactoring — extract all game state transitions into a pure, testable reducer function.
 
 **Files:**
+
 - Create: `src/gameReducer.ts`
 - Create: `src/gameReducer.spec.ts`
 
@@ -940,6 +958,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass (new + existing tests).
 
 **Step 5: Commit**
@@ -954,6 +973,7 @@ git commit -m "Adhoc: Added: Pure gameReducer with tests for all game state tran
 ### Task 8: Refactor App.tsx to use `useReducer`
 
 **Files:**
+
 - Modify: `src/App.tsx`
 
 **Step 1: Run existing App tests for baseline**
@@ -1182,6 +1202,7 @@ export default App;
 ```
 
 Key changes:
+
 - 8 `useState` hooks replaced with single `useReducer`
 - `handleSquareSelect` dispatches actions instead of calling logic directly
 - `DifficultyButtons` component eliminates ~60 lines of duplication
@@ -1195,6 +1216,7 @@ Key changes:
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass. If App tests fail due to mock patterns, fix the mocks to match the new dispatch-based flow.
 
 **Note:** The existing App tests spy on gameLogic functions. Since the reducer calls those same functions, the mocks should still intercept correctly. The test behavior should be identical.
@@ -1213,6 +1235,7 @@ git commit -m "Adhoc: Refactored: Replace 8 useState with useReducer, extract Di
 Now that App.tsx passes `isGameOver` as a derived value from status (not from the square data), the field on `GameSquare` is dead code.
 
 **Files:**
+
 - Modify: `src/types.d.ts:13-14`
 - Modify: `src/utils/gameLogic.ts` (remove from `newGame`)
 - Modify: `src/utils/testHelpers.ts` (remove from `createTestSquare`)
@@ -1221,6 +1244,7 @@ Now that App.tsx passes `isGameOver` as a derived value from status (not from th
 **Step 1: Remove the field from the interface**
 
 In `src/types.d.ts`, remove lines 13-14:
+
 ```typescript
   // Is the game currently over?
   isGameOver: boolean;
@@ -1237,6 +1261,7 @@ Remove `isGameOver: false,` from the default object (around line 12).
 **Step 4: Remove assertion from `gameLogic.spec.ts`**
 
 In the "all squares default to unopened..." test (around line 57), remove:
+
 ```typescript
 expect(square.isGameOver).toBe(false);
 ```
@@ -1246,6 +1271,7 @@ expect(square.isGameOver).toBe(false);
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass.
 
 **Step 6: Commit**
@@ -1260,6 +1286,7 @@ git commit -m "Adhoc: Removed: Dead isGameOver field from GameSquare interface"
 ### Task 10: Clean up `newGame` — replace reduce+concat with nested loops
 
 **Files:**
+
 - Modify: `src/utils/gameLogic.ts:130-154`
 
 **Step 1: Run existing tests for baseline**
@@ -1298,6 +1325,7 @@ export function newGame(
 ```bash
 pnpm test && pnpm run lint && pnpm run type:check
 ```
+
 Expected: All pass.
 
 **Step 4: Commit**

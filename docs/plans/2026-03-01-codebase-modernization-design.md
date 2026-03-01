@@ -93,6 +93,7 @@ handlers wrapped with `useCallback`.
 ### 6. Verification
 
 After each step:
+
 ```bash
 pnpm test && pnpm run lint && npx tsc --noEmit
 ```
