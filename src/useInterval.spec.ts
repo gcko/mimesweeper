@@ -20,7 +20,7 @@ describe("useInterval", () => {
     renderHook(() => useInterval(callback, 1000));
 
     const relevantCalls = setIntervalSpy.mock.calls.filter(
-      ([, delay]) => delay === 1000,
+      ([, delay]: [unknown, unknown]) => delay === 1000,
     );
     expect(relevantCalls).toHaveLength(1);
   });
@@ -40,7 +40,7 @@ describe("useInterval", () => {
     renderHook(() => useInterval(callback, 0));
 
     const relevantCalls = setIntervalSpy.mock.calls.filter(
-      ([, delay]) => delay === 0,
+      ([, delay]: [unknown, unknown]) => delay === 0,
     );
     expect(relevantCalls).toHaveLength(1);
   });
@@ -72,7 +72,7 @@ describe("useInterval", () => {
     );
     // New interval should be set with delay 500
     const relevantCalls = setIntervalSpy.mock.calls.filter(
-      ([, delay]) => delay === 500,
+      ([, delay]: [unknown, unknown]) => delay === 500,
     );
     expect(relevantCalls).toHaveLength(1);
   });
@@ -103,13 +103,13 @@ describe("useInterval", () => {
     // Rerender with new callback — interval should NOT restart
     // (same delay, so setInterval count shouldn't increase)
     const setCallsBefore = setIntervalSpy.mock.calls.filter(
-      ([, delay]) => delay === 1000,
+      ([, delay]: [unknown, unknown]) => delay === 1000,
     ).length;
 
     rerender({ cb: callback2 });
 
     const setCallsAfter = setIntervalSpy.mock.calls.filter(
-      ([, delay]) => delay === 1000,
+      ([, delay]: [unknown, unknown]) => delay === 1000,
     ).length;
 
     // Callback change should NOT cause a new setInterval
