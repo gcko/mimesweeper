@@ -135,9 +135,9 @@ function App() {
 
   useEffect(() => {
     if (status === "waitingStart" && boardSize > 0) {
-      dispatch({ type: "INIT_BOARD" });
+      dispatch({ type: "INIT_BOARD", squareSide });
     }
-  }, [status, boardSize]);
+  }, [status, boardSize, squareSide]);
 
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {

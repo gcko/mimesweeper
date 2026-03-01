@@ -31,7 +31,7 @@ export type GameAction =
       numMimes: MimeSize;
       squareSide: number;
     }
-  | { type: "INIT_BOARD" }
+  | { type: "INIT_BOARD"; squareSide: number }
   | { type: "SQUARE_CLICK"; coordinate: Coordinate }
   | { type: "SQUARE_DOUBLE_CLICK"; coordinate: Coordinate }
   | { type: "SQUARE_RIGHT_CLICK"; coordinate: Coordinate }
@@ -97,7 +97,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       return {
         ...state,
-        game: newGame(state.boardSize, state.squareSide),
+        squareSide: action.squareSide,
+        game: newGame(state.boardSize, action.squareSide),
       };
     }
 

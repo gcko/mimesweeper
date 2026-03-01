@@ -32,6 +32,8 @@ const textPadding = 5;
 const gradientMidpoint = 4;
 const LONG_PRESS_DURATION = 500;
 const MOVE_THRESHOLD = 10;
+const HOVER_OPACITY = 0.85;
+const ACTIVE_OPACITY = 0.7;
 
 // Hoisted to module scope — inputs are constants, no need to recompute
 const gradientArray = new Gradient()
@@ -58,6 +60,7 @@ function Square({
   const [flagImg] = useImage(flagImage, undefined, "same-origin");
   const [gameOverMime] = useImage(gameOverImage, undefined, "same-origin");
 
+  const rectRef = useRef<Konva.Rect>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const longPressTriggered = useRef(false);
@@ -144,6 +147,30 @@ function Square({
     }
   }, []);
 
+  const setRectOpacity = useCallback((opacity: number) => {
+    const node = rectRef.current;
+    if (node) {
+      node.opacity(opacity);
+      node.getLayer()?.batchDraw();
+    }
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    if (!opened) setRectOpacity(HOVER_OPACITY);
+  }, [opened, setRectOpacity]);
+
+  const handleMouseLeave = useCallback(() => {
+    setRectOpacity(1);
+  }, [setRectOpacity]);
+
+  const handleMouseDown = useCallback(() => {
+    if (!opened) setRectOpacity(ACTIVE_OPACITY);
+  }, [opened, setRectOpacity]);
+
+  const handleMouseUp = useCallback(() => {
+    if (!opened) setRectOpacity(HOVER_OPACITY);
+  }, [opened, setRectOpacity]);
+
   return (
     <Group
       onClick={handleClick}
@@ -154,8 +181,13 @@ function Square({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     >
       <Rect
+        ref={rectRef}
         x={x}
         y={y}
         width={size}

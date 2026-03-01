@@ -11,7 +11,8 @@ export default defineConfig({
       overlay: { initialIsOpen: false },
       typescript: true,
       biome: {
-        command: "check",
+        command: "lint",
+        flags: "src/",
       },
     }),
     viteTsconfigPaths(),
