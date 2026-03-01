@@ -188,7 +188,8 @@ describe("App", () => {
 
     test("left click on mine triggers game over lost", () => {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
         openedCount: 0,
@@ -211,7 +212,8 @@ describe("App", () => {
     test("right click toggles flag and decrements flag count", () => {
       // First click to start the game
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
         openedCount: 1,
@@ -241,7 +243,8 @@ describe("App", () => {
 
     test("right click unflag increments flag count", () => {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
         openedCount: 1,
@@ -276,7 +279,8 @@ describe("App", () => {
 
     test("double click triggers processDoubleClick", () => {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
         openedCount: 1,
@@ -310,7 +314,8 @@ describe("App", () => {
 
     test("double click on mine causes game over", () => {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
         openedCount: 1,
@@ -342,7 +347,8 @@ describe("App", () => {
 
     test("winning the game shows game over won", () => {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       // Return enough opened squares to win (boardSize=10, mimes=10, need 90 opens)
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
@@ -365,7 +371,8 @@ describe("App", () => {
 
     test("right click with 0 delta does not change flag count", () => {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
         openedCount: 1,
@@ -396,7 +403,8 @@ describe("App", () => {
   describe("game over overlay", () => {
     function triggerGameOver() {
       vi.spyOn(gameLogic, "populateMimes").mockImplementation(
-        (entries) => new Map<Coordinate, GameSquare>(entries),
+        (entries: [Coordinate, GameSquare][]) =>
+          new Map<Coordinate, GameSquare>(entries),
       );
       vi.spyOn(gameLogic, "processSquareClick").mockReturnValue({
         openedCount: 0,
