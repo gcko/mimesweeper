@@ -14,7 +14,8 @@
     "konva": "^10.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-konva": "^19.0.3"
+    "react-konva": "^19.0.3",
+    "use-image": "^1.1.4"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.4",
@@ -38,7 +39,6 @@
     "stylelint": "^17.4.0",
     "stylelint-config-standard": "^40.0.0",
     "typescript": "^5.9.3",
-    "use-image": "^1.1.4",
     "vite": "^7.3.1",
     "vite-plugin-checker": "^0.12.0",
     "vite-tsconfig-paths": "^6.1.1",
