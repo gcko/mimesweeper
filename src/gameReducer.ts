@@ -9,6 +9,7 @@ import {
   processSquareClick,
   SQUARE_SIDE,
 } from "./utils/gameLogic.ts";
+import { decrementScore, getBaseScore } from "./utils/score.ts";
 
 export interface GameState {
   game: Map<Coordinate, GameSquare> | null;
@@ -18,6 +19,7 @@ export interface GameState {
   numFlags: number;
   numOpenSpaces: number;
   playTime: number;
+  score: number;
   showRules: boolean;
 }
 
@@ -38,6 +40,7 @@ export const initialState: GameState = {
   numFlags: MimeSize.S,
   numOpenSpaces: 0,
   playTime: 0,
+  score: 0,
   showRules: false,
 };
 
@@ -62,6 +65,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         numFlags: action.numMimes,
         numOpenSpaces: 0,
         playTime: 0,
+        score: getBaseScore(action.boardSize),
       };
 
     case "INIT_BOARD": {
@@ -75,7 +79,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "TICK":
-      return { ...state, playTime: state.playTime + 1 };
+      return {
+        ...state,
+        playTime: state.playTime + 1,
+        score: decrementScore(state.score),
+      };
 
     case "TOGGLE_RULES":
       return { ...state, showRules: !state.showRules };

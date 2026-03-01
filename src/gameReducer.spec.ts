@@ -25,6 +25,10 @@ describe("gameReducer", () => {
       expect(initialState.playTime).toBe(0);
       expect(initialState.showRules).toBe(false);
     });
+
+    test("has score initialized to 0", () => {
+      expect(initialState.score).toBe(0);
+    });
   });
 
   describe("START_GAME", () => {
@@ -93,6 +97,46 @@ describe("gameReducer", () => {
 
       expect(result.status).toBe("waitingStart");
     });
+
+    test("sets score to 1000 for GridSize.S", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.S,
+        numMimes: MimeSize.S,
+      });
+
+      expect(result.score).toBe(1000);
+    });
+
+    test("sets score to 6000 for GridSize.M", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.M,
+        numMimes: MimeSize.M,
+      });
+
+      expect(result.score).toBe(6000);
+    });
+
+    test("sets score to 11000 for GridSize.L", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.L,
+        numMimes: MimeSize.L,
+      });
+
+      expect(result.score).toBe(11000);
+    });
+
+    test("sets score to 16000 for GridSize.XL", () => {
+      const result = gameReducer(initialState, {
+        type: "START_GAME",
+        boardSize: GridSize.XL,
+        numMimes: MimeSize.XL,
+      });
+
+      expect(result.score).toBe(16000);
+    });
   });
 
   describe("INIT_BOARD", () => {
@@ -156,6 +200,22 @@ describe("gameReducer", () => {
       const result = gameReducer(state, { type: "TICK" });
 
       expect(result.playTime).toBe(100);
+    });
+
+    test("decrements score by 5", () => {
+      const state: GameState = { ...initialState, score: 1000 };
+
+      const result = gameReducer(state, { type: "TICK" });
+
+      expect(result.score).toBe(995);
+    });
+
+    test("score does not go below 0", () => {
+      const state: GameState = { ...initialState, score: 2 };
+
+      const result = gameReducer(state, { type: "TICK" });
+
+      expect(result.score).toBe(0);
     });
   });
 
